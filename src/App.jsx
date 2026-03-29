@@ -7,6 +7,7 @@ import VehiclesPage from './pages/dashboard/VehiclesPage'
 import VehicleDetailPage from './pages/dashboard/VehicleDetailPage'
 import UsersPage    from './pages/dashboard/admin/UsersPage'
 import UserDetailPage from './pages/dashboard/admin/UserDetailPage'
+import LogsPage     from './pages/dashboard/LogsPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import { useAuth } from './context/AuthContext'
 
@@ -53,7 +54,7 @@ export default function App() {
       <Route
         path="/dashboard/vehicles"
         element={
-          <ProtectedRoute allowedRoles={['cso','admin']}>
+          <ProtectedRoute allowedRoles={['user','staff','cso','admin']}>
             <VehiclesPage />
           </ProtectedRoute>
         }
@@ -62,8 +63,17 @@ export default function App() {
       <Route
         path="/dashboard/vehicles/:id"
         element={
-          <ProtectedRoute allowedRoles={['cso','admin']}>
+          <ProtectedRoute allowedRoles={['user','staff','cso','admin']}>
             <VehicleDetailPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/dashboard/logs"
+        element={
+          <ProtectedRoute allowedRoles={['cso','admin']}>
+            <LogsPage />
           </ProtectedRoute>
         }
       />

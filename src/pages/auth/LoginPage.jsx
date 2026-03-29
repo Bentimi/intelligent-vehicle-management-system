@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate, Link } from 'react-router'
 import { toast } from 'react-toastify'
 import { useAuth } from '../../context/AuthContext'
+import { ShieldCheck, ArrowRight } from 'lucide-react'
 
 const roleHome = {
   user:     '/dashboard/profile',
@@ -37,7 +38,7 @@ export default function LoginPage() {
       <div className="auth-card">
         {/* Logo */}
         <div className="auth-logo">
-          <div className="auth-logo-mark">🔐</div>
+          <div className="auth-logo-mark"><ShieldCheck size={24} className="text-white" /></div>
           <div>
             <div style={{ fontWeight: 800, fontSize: '1.2rem', letterSpacing: '-0.02em' }}>CampusGate</div>
             <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Campus Access Management</div>
@@ -80,10 +81,10 @@ export default function LoginPage() {
           <button
             id="login-btn"
             type="submit"
-            className={`btn btn-primary btn-full btn-lg${isLoading ? ' btn-loading' : ''}`}
+            className={`btn btn-primary btn-full btn-lg flex items-center justify-center gap-2${isLoading ? ' btn-loading' : ''}`}
             disabled={isLoading}
           >
-            {isLoading ? '' : '→ Sign In'}
+            {isLoading ? '' : <><ArrowRight size={18} /> Sign In</>}
           </button>
         </form>
 

@@ -1,15 +1,17 @@
 import { useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'react-toastify'
 import { useForm } from 'react-hook-form'
+import { toast } from 'react-toastify'
+import { Camera, RefreshCw, Save, Edit, Ban, CheckCircle2, ClipboardList, QrCode, Car, Image as ImageIcon, ArrowLeft, Loader2 } from 'lucide-react'
+import { useAuth } from '../../context/AuthContext'
 import api from '../../services/api'
 import Layout from '../../components/Layout'
 
 function LogTable({ logs }) {
   if (!logs?.length) return (
     <div className="empty-state">
-      <div className="empty-state-icon">📋</div>
+      <div className="empty-state-icon flex justify-center mb-4"><ClipboardList size={48} className="text-muted" /></div>
       <h3>No logs yet</h3>
       <p>This vehicle has no entry/exit records</p>
     </div>
@@ -50,11 +52,15 @@ export default function VehicleDetailPage() {
   const qc = useQueryClient()
   const fileRef = useRef()
 
+  const { user }   = useAuth()
   const [editMode, setEditMode]   = useState(false)
   const [saving, setSaving]       = useState(false)
   const [blisting, setBlisting]   = useState(false)
   const [uploading, setUploading] = useState(false)
   const [logPage, setLogPage]     = useState(1)
+  const [logPageSize, setLogPageSize] = useState(10)
+  const [searchLogInput, setSearchLogInput] = useState('')
+  const [searchLogFinal, setSearchLogFinal] = useState('')
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm()
 
@@ -64,12 +70,20 @@ export default function VehicleDetailPage() {
     onSuccess: (v) => reset(v),
   })
 
-  const { data: logData, isLoading: lLoading } = useQuery({
-    queryKey: ['logs', id, logPage],
-    queryFn: () => api.get(`/log/${id}?page=${logPage}&pageSize=8`).then((r) => r.data?.data?.log),
+  const { data: logQueryResult, isLoading: lLoading } = useQuery({
+    queryKey: ['logs', id, logPage, logPageSize, searchLogFinal],
+    queryFn: () => api.get(`/log/${id}?page=${logPage}&pageSize=${logPageSize}&search=${searchLogFinal}`).then((r) => r.data?.data),
   })
+  const logData = logQueryResult?.log || []
+  const logTotal = logQueryResult?.total || 0
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ['vehicle', id] })
+
+  const handleLogSearch = (e) => {
+    e.preventDefault()
+    setSearchLogFinal(searchLogInput.trim())
+    setLogPage(1)
+  }
 
   const onUpdate = async (data) => {
     setSaving(true)
@@ -131,23 +145,25 @@ export default function VehicleDetailPage() {
     <Layout title="Vehicle Detail">
       <div className="animate-slide-up">
         {/* Back */}
-        <button className="btn btn-ghost btn-sm" style={{ marginBottom:'1rem' }} onClick={() => navigate('/dashboard/vehicles')}>
-          ← Back to vehicles
+        <button className="btn btn-ghost btn-sm flex items-center gap-2" style={{ marginBottom:'1rem' }} onClick={() => navigate('/dashboard/vehicles')}>
+          <ArrowLeft size={16} /> Back to vehicles
         </button>
 
         <div className="page-header">
-          <h1>{vehicle.plate_number}</h1>
-          <p>{vehicle.model} · {vehicle.color} · {vehicle.vehicle_type}</p>
+          <h1 style={{ fontWeight: 800 }}>{vehicle.plate_number}</h1>
+          <p style={{ fontWeight: 600 }}>{vehicle.model} · {vehicle.color} · {vehicle.vehicle_type}</p>
         </div>
 
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1.5rem', marginBottom:'1.5rem' }}>
+        <div className="grid-2" style={{ gap:'1.5rem', marginBottom:'1.5rem' }}>
           {/* Info card */}
           <div className="card">
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'1.25rem' }}>
-              <div className="card-title" style={{ margin:0 }}>🚗 Vehicle Info</div>
+              <div className="card-title flex items-center gap-2" style={{ margin:0, fontWeight: 'bold' }}>
+                <Car size={18} className="text-primary" /> Vehicle Info
+              </div>
               <div style={{ display:'flex', gap:'0.5rem' }}>
-                <span className={`badge ${vehicle.isBlacklisted ? 'badge-blacklisted' : 'badge-active'}`}>
-                  {vehicle.isBlacklisted ? '🚫 Blacklisted' : '✅ Active'}
+                <span className={`badge flex items-center gap-1 ${vehicle.isBlacklisted ? 'badge-blacklisted' : 'badge-active'}`}>
+                  {vehicle.isBlacklisted ? <><Ban size={14} /> Blacklisted</> : <><CheckCircle2 size={14} /> Active</>}
                 </span>
               </div>
             </div>
@@ -186,8 +202,9 @@ export default function VehicleDetailPage() {
                 </div>
                 <div style={{ display:'flex', gap:'0.75rem', justifyContent:'flex-end' }}>
                   <button type="button" className="btn btn-secondary" onClick={() => { setEditMode(false); reset(vehicle) }}>Cancel</button>
-                  <button type="submit" className={`btn btn-primary${saving?'btn-loading':''}`} disabled={saving}>
-                    {saving ? '' : '💾 Save'}
+                  <button type="submit" className={`btn btn-primary flex items-center gap-2${saving?' btn-loading':''}`} disabled={saving}>
+                    {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                    {saving ? 'Saving...' : 'Save Changes'}
                   </button>
                 </div>
               </form>
@@ -209,15 +226,22 @@ export default function VehicleDetailPage() {
                   ))}
                 </div>
                 <div style={{ display:'flex', gap:'0.75rem', flexWrap:'wrap' }}>
-                  <button className="btn btn-secondary btn-sm" onClick={() => setEditMode(true)}>✏️ Edit</button>
-                  <button
-                    id="blacklist-btn"
-                    className={`btn btn-sm ${vehicle.isBlacklisted ? 'btn-success' : 'btn-danger'}`}
-                    onClick={handleBlacklist}
-                    disabled={blisting}
-                  >
-                    {vehicle.isBlacklisted ? '✅ Unblacklist' : '🚫 Blacklist'}
-                  </button>
+                  {(user?.role === 'admin' || user?.role === 'cso') && (
+                    <>
+                      <button className="btn btn-secondary btn-sm flex items-center gap-2" onClick={() => setEditMode(true)}>
+                        <Edit size={14} /> Edit
+                      </button>
+                      <button
+                        id="blacklist-btn"
+                        className={`btn btn-sm flex items-center gap-2 ${vehicle.isBlacklisted ? 'btn-success' : 'btn-danger'}`}
+                        onClick={handleBlacklist}
+                        disabled={blisting}
+                      >
+                        {blisting ? <Loader2 size={14} className="animate-spin" /> : (vehicle.isBlacklisted ? <CheckCircle2 size={14} /> : <Ban size={14} />)}
+                        {blisting ? 'Processing...' : (vehicle.isBlacklisted ? 'Unblacklist' : 'Blacklist')}
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             )}
@@ -227,24 +251,25 @@ export default function VehicleDetailPage() {
           <div style={{ display:'flex', flexDirection:'column', gap:'1rem' }}>
             {/* Vehicle image */}
             <div className="card" style={{ flex:1 }}>
-              <div className="card-title">📸 Vehicle Image</div>
+              <div className="card-title flex items-center gap-2"><ImageIcon size={18} className="text-primary" /> Vehicle Image</div>
               {vehicle.image ? (
                 <img src={vehicle.image} alt="vehicle" style={{ width:'100%', borderRadius:'var(--radius-md)', objectFit:'cover', maxHeight:160 }} />
               ) : (
                 <div className="upload-area" onClick={() => fileRef.current?.click()}>
-                  <div style={{ fontSize:'2rem', marginBottom:'0.5rem' }}>📷</div>
+                  <div className="mb-2 text-muted"><Camera size={32} /></div>
                   <p style={{ fontSize:'0.82rem', color:'var(--text-muted)' }}>Click to upload vehicle image</p>
                 </div>
               )}
               <input ref={fileRef} type="file" accept="image/*" hidden onChange={handleImageUpload} />
               {vehicle.image && (
                 <button
-                  className={`btn btn-secondary btn-sm${uploading?' btn-loading':''}`}
+                  className={`btn btn-secondary btn-sm flex items-center gap-2${uploading?' btn-loading':''}`}
                   style={{ marginTop:'0.75rem' }}
                   onClick={() => fileRef.current?.click()}
                   disabled={uploading}
                 >
-                  {uploading ? '' : '🔄 Change Image'}
+                  {uploading ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
+                  {uploading ? 'Uploading...' : 'Change Image'}
                 </button>
               )}
             </div>
@@ -252,7 +277,7 @@ export default function VehicleDetailPage() {
             {/* QR Code */}
             {vehicle.qrCode && (
               <div className="card">
-                <div className="card-title">📱 QR Code</div>
+                <div className="card-title flex items-center gap-2"><QrCode size={18} className="text-primary" /> QR Code</div>
                 <img src={vehicle.qrCode} alt="QR" style={{ width:'100%', maxWidth:150, display:'block', margin:'0 auto', borderRadius:'var(--radius-md)' }} />
               </div>
             )}
@@ -261,17 +286,46 @@ export default function VehicleDetailPage() {
 
         {/* Log History */}
         <div className="card">
-          <div className="card-title">📋 Entry / Exit Log History</div>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'1.25rem', flexWrap:'wrap', gap:'1rem' }}>
+            <div className="card-title flex items-center gap-2" style={{ margin:0 }}>
+              <ClipboardList size={18} className="text-primary" /> Entry / Exit Log History
+            </div>
+            <form onSubmit={handleLogSearch} style={{ display:'flex', gap:'0.5rem', flexWrap:'wrap' }}>
+              <input
+                className="form-input"
+                style={{ padding:'0.4rem 0.75rem', fontSize:'0.82rem', width:'200px' }}
+                placeholder="Search status or user..."
+                value={searchLogInput}
+                onChange={(e) => setSearchLogInput(e.target.value)}
+              />
+              <select 
+                className="form-select" 
+                style={{ width: 'auto', padding: '0.2rem 1.75rem 0.2rem 0.5rem', fontSize: '0.8rem' }} 
+                value={logPageSize} 
+                onChange={(e) => { setLogPageSize(Number(e.target.value)); setLogPage(1); }}
+              >
+                <option value={5}>5 per page</option>
+                <option value={10}>10 per page</option>
+                <option value={20}>20 per page</option>
+              </select>
+              <button type="submit" className="btn btn-secondary btn-sm">Search</button>
+            </form>
+          </div>
+          
           {lLoading ? (
             <div className="inline-loader"><div className="spinner" /></div>
           ) : (
             <LogTable logs={logData} />
           )}
-          {logData?.length >= 8 && (
-            <div className="pagination">
+          {logData && logTotal > 0 && (
+            <div className="pagination" style={{ padding: '1rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem' }}>
               <button className="pagination-btn" disabled={logPage === 1} onClick={() => setLogPage((p) => p - 1)}>‹</button>
-              <span className="pagination-btn active">{logPage}</span>
-              <button className="pagination-btn" onClick={() => setLogPage((p) => p + 1)}>›</button>
+              <span className="text-sm font-medium">Page {logPage} of {Math.ceil(logTotal / logPageSize)}</span>
+              <button 
+                className="pagination-btn" 
+                disabled={logData.length < logPageSize || logPage * logPageSize >= logTotal}
+                onClick={() => setLogPage((p) => p + 1)}
+              >›</button>
             </div>
           )}
         </div>

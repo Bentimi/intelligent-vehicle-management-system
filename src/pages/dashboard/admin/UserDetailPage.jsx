@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'react-toastify'
 import { useForm } from 'react-hook-form'
+import { toast } from 'react-toastify'
+import { ArrowLeft, Edit, Save, UserCircle, Loader2 } from 'lucide-react'
 import api from '../../../services/api'
 import Layout from '../../../components/Layout'
 
@@ -58,8 +59,8 @@ export default function UserDetailPage() {
   return (
     <Layout title="User Detail">
       <div className="animate-slide-up">
-        <button className="btn btn-ghost btn-sm" style={{ marginBottom:'1rem' }} onClick={() => navigate('/dashboard/admin/users')}>
-          ← Back to users
+        <button className="btn btn-ghost btn-sm flex items-center gap-2" style={{ marginBottom:'1rem' }} onClick={() => navigate('/dashboard/admin/users')}>
+          <ArrowLeft size={16} /> Back to users
         </button>
 
         <div className="page-header">
@@ -88,8 +89,8 @@ export default function UserDetailPage() {
             </div>
           </div>
           {!editMode && (
-            <button id="edit-user-btn" className="btn btn-secondary" onClick={() => setEditMode(true)}>
-              ✏️ Edit
+            <button id="edit-user-btn" className="btn btn-secondary flex items-center gap-2" onClick={() => setEditMode(true)}>
+              <Edit size={16} /> Edit
             </button>
           )}
         </div>
@@ -97,7 +98,7 @@ export default function UserDetailPage() {
         <div className="card">
           {editMode ? (
             <>
-              <div className="card-title">✏️ Edit User</div>
+              <div className="card-title flex items-center gap-2"><Edit size={18} className="text-primary" /> Edit User</div>
               <form onSubmit={handleSubmit(onUpdate)} noValidate>
                 <div className="form-row">
                   <div className="form-group">
@@ -145,15 +146,16 @@ export default function UserDetailPage() {
                 </div>
                 <div style={{ display:'flex', gap:'0.75rem', justifyContent:'flex-end' }}>
                   <button type="button" className="btn btn-secondary" onClick={() => { setEditMode(false); reset(user) }}>Cancel</button>
-                  <button type="submit" className={`btn btn-primary${saving?'btn-loading':''}`} disabled={saving}>
-                    {saving?'':'💾 Save Changes'}
+                  <button type="submit" className={`btn btn-primary flex items-center gap-2${saving ? ' btn-loading' : ''}`} disabled={saving}>
+                    {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                    {saving ? 'Saving...' : 'Save Changes'}
                   </button>
                 </div>
               </form>
             </>
           ) : (
             <>
-              <div className="card-title">👤 User Details</div>
+              <div className="card-title flex items-center gap-2"><UserCircle size={18} className="text-primary" /> User Details</div>
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1.25rem' }}>
                 {[
                   ['Email', user.email],

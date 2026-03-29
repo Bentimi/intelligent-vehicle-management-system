@@ -1,29 +1,35 @@
 import { useState, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router';
+import { NavLink, useNavigate, useLocation } from 'react-router';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import { LayoutDashboard, Users, Car, Scan, ClipboardList, LogOut, UserCircle, Menu, X, ShieldCheck } from 'lucide-react';
+import ThemeToggle from './ThemeToggle';
 
 const roleNav = {
   user: [
-    { to: '/dashboard/profile', icon: '👤', label: 'My Profile' },
+    { to: '/dashboard/vehicles', icon: <Car size={18} />, label: 'My Vehicles' },
+    { to: '/dashboard/profile',  icon: <UserCircle size={18} />, label: 'My Profile' },
   ],
   staff: [
-    { to: '/dashboard/profile', icon: '👤', label: 'My Profile' },
+    { to: '/dashboard/vehicles', icon: <Car size={18} />, label: 'My Vehicles' },
+    { to: '/dashboard/profile',  icon: <UserCircle size={18} />, label: 'My Profile' },
   ],
   security: [
-    { to: '/dashboard/scan',    icon: '📷', label: 'Scan Vehicle' },
-    { to: '/dashboard/profile', icon: '👤', label: 'My Profile' },
+    { to: '/dashboard/scan',     icon: <Scan size={18} />, label: 'Scan Terminal' },
+    { to: '/dashboard/profile',  icon: <UserCircle size={18} />, label: 'My Profile' },
   ],
   cso: [
-    { to: '/dashboard/vehicles', icon: '🚗', label: 'Vehicles' },
-    { to: '/dashboard/scan',     icon: '📷', label: 'Scan Vehicle' },
-    { to: '/dashboard/profile',  icon: '👤', label: 'My Profile' },
+    { to: '/dashboard/vehicles', icon: <Car size={18} />, label: 'Vehicles' },
+    { to: '/dashboard/scan',     icon: <Scan size={18} />, label: 'Scan Terminal' },
+    { to: '/dashboard/logs',     icon: <ClipboardList size={18} />, label: 'System Logs' },
+    { to: '/dashboard/profile',  icon: <UserCircle size={18} />, label: 'My Profile' },
   ],
   admin: [
-    { to: '/dashboard/admin/users',    icon: '👥', label: 'Users' },
-    { to: '/dashboard/vehicles',       icon: '🚗', label: 'Vehicles' },
-    { to: '/dashboard/scan',           icon: '📷', label: 'Scan Vehicle' },
-    { to: '/dashboard/profile',        icon: '👤', label: 'My Profile' },
+    { to: '/dashboard/admin/users', icon: <Users size={18} />, label: 'Users' },
+    { to: '/dashboard/vehicles',    icon: <Car size={18} />, label: 'Vehicles' },
+    { to: '/dashboard/scan',        icon: <Scan size={18} />, label: 'Scan Terminal' },
+    { to: '/dashboard/logs',        icon: <ClipboardList size={18} />, label: 'System Logs' },
+    { to: '/dashboard/profile',     icon: <UserCircle size={18} />, label: 'My Profile' },
   ],
 };
 
@@ -36,6 +42,7 @@ export default function Layout({ children, title = 'Dashboard' }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   const links = roleNav[user?.role] || [];
 
@@ -56,10 +63,10 @@ export default function Layout({ children, title = 'Dashboard' }) {
       {/* Mobile topbar */}
       <div className="mobile-topbar">
         <button className="hamburger" onClick={() => setSidebarOpen((o) => !o)} aria-label="Toggle menu">
-          ☰
+          <Menu size={24} />
         </button>
         <div style={{ display:'flex', alignItems:'center', gap:'0.5rem' }}>
-          <span style={{ fontSize:'1.2rem' }}>🔐</span>
+          <ShieldCheck size={20} className="text-primary" />
           <span style={{ fontWeight:700, fontSize:'0.95rem' }}>CampusGate</span>
         </div>
       </div>
@@ -70,10 +77,10 @@ export default function Layout({ children, title = 'Dashboard' }) {
       )}
 
       {/* Sidebar */}
-      <aside className={`sidebar${sidebarOpen ? ' open' : ''}`}>
+      <aside className={`sidebar${sidebarOpen ? ' open' : ''}${collapsed ? ' collapsed' : ''}`}>
         {/* Logo */}
         <div className="sidebar-logo">
-          <div className="sidebar-logo-mark">🔐</div>
+          <div className="sidebar-logo-mark"><ShieldCheck size={22} className="text-white" /></div>
           <div>
             <div className="sidebar-logo-text">CampusGate</div>
             <span className="sidebar-logo-sub">Access Management</span>
@@ -97,7 +104,7 @@ export default function Layout({ children, title = 'Dashboard' }) {
 
           <span className="nav-section-label" style={{ marginTop:'auto' }}>Account</span>
           <button className="nav-item" onClick={handleLogout}>
-            <span className="nav-icon">🚪</span>
+            <span className="nav-icon"><LogOut size={18} /></span>
             Logout
           </button>
         </nav>
@@ -117,11 +124,17 @@ export default function Layout({ children, title = 'Dashboard' }) {
       </aside>
 
       {/* Main content */}
-      <main className="main-content">
+      <main className={`main-content${collapsed ? ' collapsed' : ''}`}>
         {/* Topbar */}
         <div className="topbar">
-          <span className="topbar-title">{title}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <button className="hamburger-desktop" onClick={() => setCollapsed(!collapsed)} aria-label="Toggle sidebar">
+              <Menu size={24} />
+            </button>
+            <span className="topbar-title">{title}</span>
+          </div>
           <div className="topbar-actions">
+            <ThemeToggle />
             <span className={`badge badge-${user?.role}`}>{user?.role}</span>
           </div>
         </div>

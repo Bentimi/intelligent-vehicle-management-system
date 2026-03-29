@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router'
 import { toast } from 'react-toastify'
 import { useState } from 'react'
 import api from '../../services/api'
+import { ShieldCheck, UserPlus } from 'lucide-react'
 
 export default function SignupPage() {
   const navigate = useNavigate()
@@ -34,7 +35,7 @@ export default function SignupPage() {
     <div className="auth-page">
       <div className="auth-card" style={{ maxWidth: 480 }}>
         <div className="auth-logo">
-          <div className="auth-logo-mark">🔐</div>
+          <div className="auth-logo-mark"><ShieldCheck size={24} className="text-white" /></div>
           <div>
             <div style={{ fontWeight: 800, fontSize: '1.2rem', letterSpacing: '-0.02em' }}>CampusGate</div>
             <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Campus Access Management</div>
@@ -122,10 +123,10 @@ export default function SignupPage() {
           <button
             id="signup-btn"
             type="submit"
-            className={`btn btn-primary btn-full btn-lg${loading ? ' btn-loading' : ''}`}
+            className={`btn btn-primary btn-full btn-lg flex items-center justify-center gap-2${loading ? ' btn-loading' : ''}`}
             disabled={loading}
           >
-            {loading ? '' : '→ Create Account'}
+            {loading ? '' : <><UserPlus size={18} /> Create Account</>}
           </button>
         </form>
 
