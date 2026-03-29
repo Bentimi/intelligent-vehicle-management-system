@@ -63,7 +63,6 @@ export default function ScanPage() {
                       onScan={(detected) => {
                         if (detected && detected[0]) {
                           const id = detected[0].rawValue
-                          setVehicleId(id)
                           toast.info(`Scanned ID. Submitting...`)
                           submitScan(id)
                         }
