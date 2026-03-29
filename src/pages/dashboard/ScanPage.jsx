@@ -61,6 +61,7 @@ export default function ScanPage() {
                     <Scanner
                       styles={{ container: { height: '100%' } }}
                       onScan={(detected) => {
+                        if (loading) return
                         if (detected && detected[0]) {
                           const id = detected[0].rawValue
                           toast.info(`Scanned ID. Submitting...`)

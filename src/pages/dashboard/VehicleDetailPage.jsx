@@ -278,7 +278,7 @@ export default function VehicleDetailPage() {
             {vehicle.qrCode && (
               <div className="card">
                 <div className="card-title flex items-center gap-2"><QrCode size={18} className="text-primary" /> QR Code</div>
-                <img src={vehicle.qrCode} alt="QR" style={{ width:'100%', maxWidth:150, display:'block', margin:'0 auto', borderRadius:'var(--radius-md)' }} />
+                <img src={vehicle.qrCode} alt="QR" style={{ width:'100%', maxWidth:250, display:'block', margin:'0 auto', borderRadius:'var(--radius-md)' }} />
               </div>
             )}
           </div>
