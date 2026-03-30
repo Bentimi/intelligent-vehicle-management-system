@@ -7,6 +7,7 @@ import { Camera, RefreshCw, Save, Edit, Ban, CheckCircle2, ClipboardList, QrCode
 import { useAuth } from '../../context/AuthContext'
 import api from '../../services/api'
 import Layout from '../../components/Layout'
+import useDebounce from '../../hooks/useDebounce'
 
 function LogTable({ logs }) {
   if (!logs?.length) return (
@@ -60,7 +61,7 @@ export default function VehicleDetailPage() {
   const [logPage, setLogPage]     = useState(1)
   const [logPageSize, setLogPageSize] = useState(10)
   const [searchLogInput, setSearchLogInput] = useState('')
-  const [searchLogFinal, setSearchLogFinal] = useState('')
+  const debouncedLogSearch = useDebounce(searchLogInput, 400)
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm()
 
@@ -74,20 +75,17 @@ export default function VehicleDetailPage() {
     if (vehicle) reset(vehicle)
   }, [vehicle, reset])
 
+  // Reset to page 1 when search changes
+  useEffect(() => { setLogPage(1) }, [debouncedLogSearch])
+
   const { data: logQueryResult, isLoading: lLoading } = useQuery({
-    queryKey: ['logs', id, logPage, logPageSize, searchLogFinal],
-    queryFn: () => api.get(`/log/${id}?page=${logPage}&pageSize=${logPageSize}&search=${searchLogFinal}`).then((r) => r.data?.data),
+    queryKey: ['logs', id, logPage, logPageSize, debouncedLogSearch],
+    queryFn: () => api.get(`/log/${id}?page=${logPage}&pageSize=${logPageSize}&search=${debouncedLogSearch}`).then((r) => r.data?.data),
   })
   const logData = logQueryResult?.log || []
   const logTotal = logQueryResult?.total || 0
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ['vehicle', id] })
-
-  const handleLogSearch = (e) => {
-    e.preventDefault()
-    setSearchLogFinal(searchLogInput.trim())
-    setLogPage(1)
-  }
 
   const onUpdate = async (data) => {
     setSaving(true)
@@ -279,7 +277,7 @@ export default function VehicleDetailPage() {
             </div>
 
             {/* QR Code */}
-            {vehicle.qrCode && (
+            {vehicle.qrCode && (vehicle.user?._id === user?._id || vehicle.user === user?._id) && (
               <div className="card">
                 <div className="card-title flex items-center gap-2"><QrCode size={18} className="text-primary" /> QR Code</div>
                 <img src={vehicle.qrCode} alt="QR" style={{ width:'100%', maxWidth:250, display:'block', margin:'0 auto', borderRadius:'var(--radius-md)' }} />
@@ -294,7 +292,7 @@ export default function VehicleDetailPage() {
             <div className="card-title flex items-center gap-2" style={{ margin:0 }}>
               <ClipboardList size={18} className="text-primary" /> Entry / Exit Log History
             </div>
-            <form onSubmit={handleLogSearch} style={{ display:'flex', gap:'0.5rem', flexWrap:'wrap' }}>
+            <div style={{ display:'flex', gap:'0.5rem', flexWrap:'wrap' }}>
               <input
                 className="form-input"
                 style={{ padding:'0.4rem 0.75rem', fontSize:'0.82rem', width:'200px' }}
@@ -312,8 +310,7 @@ export default function VehicleDetailPage() {
                 <option value={10}>10 per page</option>
                 <option value={20}>20 per page</option>
               </select>
-              <button type="submit" className="btn btn-secondary btn-sm">Search</button>
-            </form>
+            </div>
           </div>
           
           {lLoading ? (

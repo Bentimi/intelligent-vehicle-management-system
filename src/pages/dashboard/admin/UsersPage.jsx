@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
 import { Users, Shield, Lock, CheckCircle2, Ban, AlertTriangle, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import api from '../../../services/api'
 import Layout from '../../../components/Layout'
+import useDebounce from '../../../hooks/useDebounce'
 
 export default function UsersPage() {
   const [page, setPage] = useState(1)
@@ -11,23 +12,19 @@ export default function UsersPage() {
   const navigate = useNavigate()
 
   const [searchInput, setSearchInput] = useState('')
-  const [searchFinal, setSearchFinal] = useState('')
+  const debouncedSearch = useDebounce(searchInput, 400)
+
+  // Reset to page 1 when search changes
+  useEffect(() => { setPage(1) }, [debouncedSearch])
 
   const { data: usersData, isLoading, isError, error } = useQuery({
-    queryKey: ['users', page, searchFinal, pageSize],
-    queryFn: () => api.get(`/user/get-users?page=${page}&pageSize=${pageSize}&search=${searchFinal}`).then((r) => r.data?.data),
+    queryKey: ['users', page, debouncedSearch, pageSize],
+    queryFn: () => api.get(`/user/get-users?page=${page}&pageSize=${pageSize}&search=${debouncedSearch}`).then((r) => r.data?.data),
     keepPreviousData: true,
   })
 
   const users = usersData?.users || []
   const total = usersData?.total || 0
-
-  const handleSearch = (e) => {
-    e.preventDefault()
-    setSearchFinal(searchInput.trim())
-    setPage(1)
-  }
-
   const roleBadge = (role) => <span className={`badge badge-${role}`}>{role}</span>
   const statusBadge = (active) => (
     <span className={`badge flex items-center gap-1 ${active ? 'badge-active' : 'badge-blacklisted'}`}>
@@ -60,14 +57,13 @@ export default function UsersPage() {
         </div>
 
         <div style={{ display:'flex', gap:'1rem', justifyContent:'space-between', alignItems:'center', marginBottom:'1.5rem', flexWrap:'wrap' }}>
-          <form onSubmit={handleSearch} style={{ display:'flex', gap:'0.75rem', flex:1, minWidth:260 }}>
+          <div style={{ display:'flex', gap:'0.75rem', flex:1, minWidth:260 }}>
             <input
               className="form-input"
               placeholder="Search by name, email, or reg #..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
-            <button type="submit" className="btn btn-secondary">Filter</button>
             <select 
               className="form-select" 
               style={{ width: 'auto', padding: '0.4rem 2rem 0.4rem 0.75rem' }} 
@@ -78,7 +74,7 @@ export default function UsersPage() {
               <option value={10}>10 per page</option>
               <option value={20}>20 per page</option>
             </select>
-          </form>
+          </div>
         </div>
 
         <div className="card" style={{ padding:0 }}>

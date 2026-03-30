@@ -68,7 +68,7 @@ export default function ProfilePage() {
       {loading ? (
         <div className="inline-loader"><div className="spinner" /></div>
       ) : (
-        <div className="animate-slide-up">
+        <div className="animate-slide-up" style={{ maxWidth: '1000px', margin: '0 auto' }}>
           <div className="page-header">
             <h1><UserIcon className="inline-block mr-2" /> My Profile</h1>
             <p>View and manage your personal information</p>
@@ -147,11 +147,14 @@ export default function ProfilePage() {
               ) : vehicles && vehicles.length > 0 ? (
                 <>
                   <div className="table-wrapper" style={{ borderRadius: 0, border: 'none' }}>
-                    <table>
+                    <table className="table-compact">
                       <thead>
                         <tr>
                           <th>Plate Number</th>
                           <th>Type</th>
+                          <th>Registered</th>
+                          <th>Last Entry</th>
+                          <th>Last Exit</th>
                           <th>Status</th>
                         </tr>
                       </thead>
@@ -160,6 +163,9 @@ export default function ProfilePage() {
                           <tr key={v._id} style={{ cursor:'pointer' }} onClick={() => navigate(`/dashboard/vehicles/${v._id}`)}>
                             <td style={{ fontWeight: 500, color: 'var(--primary)' }}>{v.plate_number}</td>
                             <td style={{ textTransform: 'capitalize' }}>{v.vehicle_type || '—'}</td>
+                            <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{v.createdAt ? new Date(v.createdAt).toLocaleDateString() : '—'}</td>
+                            <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{v.lastEntry ? new Date(v.lastEntry).toLocaleDateString() + ' ' + new Date(v.lastEntry).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '—'}</td>
+                            <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{v.lastExit ? new Date(v.lastExit).toLocaleDateString() + ' ' + new Date(v.lastExit).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '—'}</td>
                             <td>
                               <span className={`badge ${v.isBlacklisted ? 'badge-blacklisted' : 'badge-active'}`}>
                                 {v.isBlacklisted ? 'Blacklisted' : 'Active'}

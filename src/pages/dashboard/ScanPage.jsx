@@ -159,9 +159,9 @@ export default function ScanPage() {
                     ['Scanned by', result.scannedBy ? `${result.scannedBy.first_name || ''} ${result.scannedBy.last_name || ''}`.trim() || result.scannedBy : '—'],
                     ['Logged at', result.createdAt ? new Date(result.createdAt).toLocaleString() : '—'],
                   ].map(([label, val]) => (
-                    <div key={label} style={{ display:'flex', justifyContent:'space-between', borderBottom:'1px solid var(--border)', paddingBottom:'0.81rem' }}>
-                      <span style={{ fontSize:'0.9rem', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.05em', fontWeight:500 }}>{label}</span>
-                      <span style={{ fontSize:'1.1rem', fontWeight:700, color:'var(--text-primary)' }}>{val}</span>
+                    <div key={label} className="log-item">
+                      <span className="log-item-label">{label}</span>
+                      <span className="log-item-value">{val}</span>
                     </div>
                   ))}
                 </div>

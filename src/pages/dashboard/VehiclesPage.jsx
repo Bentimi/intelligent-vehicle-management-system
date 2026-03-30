@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
 import { toast } from 'react-toastify'
@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext'
 import api from '../../services/api'
 import Layout from '../../components/Layout'
 import { CarFront, Save, Search, Plus, AlertTriangle, Ban, CheckCircle2, X, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
+import useDebounce from '../../hooks/useDebounce'
 
 function RegisterVehicleModal({ open, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false)
@@ -91,17 +92,21 @@ function RegisterVehicleModal({ open, onClose, onSuccess }) {
 export default function VehiclesPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const [showModal, setShowModal] = useState(false)
   const [vehicleInput, setVehicleInput] = useState('')
-  const [searchFinal, setSearchFinal] = useState('')
+  const debouncedSearch = useDebounce(vehicleInput, 400)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
+  // Reset to page 1 when search changes
+  useEffect(() => { setPage(1) }, [debouncedSearch])
+
   const { data: vehicleData, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['vehicles', page, pageSize, searchFinal],
-    queryFn: () => api.get(`/vehicle?page=${page}&pageSize=${pageSize}&search=${searchFinal}`).then((r) => r.data?.data),
+    queryKey: ['vehicles', page, pageSize, debouncedSearch],
+    queryFn: () => api.get(`/vehicle?page=${page}&pageSize=${pageSize}&search=${debouncedSearch}`).then((r) => r.data?.data),
     keepPreviousData: true,
   })
+
+  const [showModal, setShowModal] = useState(false)
 
   const handleBlacklistToggle = async (e, id) => {
     e.stopPropagation()
@@ -116,12 +121,6 @@ export default function VehiclesPage() {
 
   const filteredVehicles = vehicleData?.vehicles || []
   const total = vehicleData?.total || 0
-
-  const handleSearch = (e) => {
-    e.preventDefault()
-    setSearchFinal(vehicleInput.trim())
-    setPage(1)
-  }
 
   return (
     <Layout title="Vehicles">
@@ -138,7 +137,7 @@ export default function VehiclesPage() {
         </div>
 
         <div style={{ display:'flex', gap:'1rem', justifyContent:'space-between', alignItems:'center', marginBottom:'1.5rem', flexWrap:'wrap' }}>
-          <form onSubmit={handleSearch} style={{ display:'flex', gap:'0.75rem', flex:1, minWidth:260 }}>
+          <div style={{ display:'flex', gap:'0.75rem', flex:1, minWidth:260 }}>
             <input
               id="vehicle-search-input"
               className="form-input"
@@ -146,7 +145,6 @@ export default function VehiclesPage() {
               value={vehicleInput}
               onChange={(e) => setVehicleInput(e.target.value)}
             />
-            <button id="vehicle-search-btn" type="submit" className="btn btn-secondary flex items-center gap-2"><Search size={16} /> Filter</button>
             <select 
               className="form-select" 
               style={{ width: 'auto', padding: '0.4rem 2rem 0.4rem 0.75rem' }} 
@@ -157,7 +155,7 @@ export default function VehiclesPage() {
               <option value={10}>10 per page</option>
               <option value={20}>20 per page</option>
             </select>
-          </form>
+          </div>
           {user?.role === 'admin' || user?.role === 'cso' ? (
             <button id="register-vehicle-btn" className="btn btn-primary flex items-center gap-2" onClick={() => setShowModal(true)}>
               <Plus size={16} /> Register Vehicle

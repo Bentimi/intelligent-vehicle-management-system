@@ -1,26 +1,24 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { ClipboardList, AlertTriangle, ChevronLeft, ChevronRight, ArrowDownToLine, ArrowUpFromLine } from 'lucide-react'
 import api from '../../services/api'
 import Layout from '../../components/Layout'
+import useDebounce from '../../hooks/useDebounce'
 
 export default function LogsPage() {
   const [page, setPage] = useState(1)
   const [searchInput, setSearchInput] = useState('')
-  const [searchFinal, setSearchFinal] = useState('')
+  const debouncedSearch = useDebounce(searchInput, 400)
   const [pageSize, setPageSize] = useState(10)
 
+  // Reset to page 1 when search changes
+  useEffect(() => { setPage(1) }, [debouncedSearch])
+
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['logs', page, searchFinal, pageSize],
-    queryFn: () => api.get(`/log?page=${page}&pageSize=${pageSize}&search=${searchFinal}`).then((r) => r.data?.data),
+    queryKey: ['logs', page, debouncedSearch, pageSize],
+    queryFn: () => api.get(`/log?page=${page}&pageSize=${pageSize}&search=${debouncedSearch}`).then((r) => r.data?.data),
     keepPreviousData: true,
   })
-
-  const handleSearch = (e) => {
-    e.preventDefault()
-    setSearchFinal(searchInput.trim())
-    setPage(1)
-  }
 
   return (
     <Layout title="System Logs">
@@ -31,14 +29,13 @@ export default function LogsPage() {
         </div>
 
         <div style={{ display:'flex', gap:'1rem', justifyContent:'space-between', alignItems:'center', marginBottom:'1.5rem', flexWrap:'wrap' }}>
-          <form onSubmit={handleSearch} style={{ display:'flex', gap:'0.75rem', flex:1, minWidth:260 }}>
+          <div style={{ display:'flex', gap:'0.75rem', flex:1, minWidth:260 }}>
             <input
               className="form-input"
               placeholder="Search by user or plate..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
-            <button type="submit" className="btn btn-secondary flex items-center gap-2">Search</button>
             <select 
               className="form-select" 
               style={{ width: 'auto', padding: '0.4rem 2rem 0.4rem 0.75rem' }} 
@@ -49,7 +46,7 @@ export default function LogsPage() {
               <option value={10}>10 per page</option>
               <option value={20}>20 per page</option>
             </select>
-          </form>
+          </div>
         </div>
 
         <div className="card" style={{ padding: 0 }}>

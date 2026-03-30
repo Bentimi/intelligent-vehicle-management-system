@@ -57,7 +57,7 @@ export default function LoginPage() {
               id="email"
               type="email"
               className="form-input"
-              placeholder="you@university.edu"
+              placeholder="Enter your email"
               {...register('email', {
                 required: 'Email is required',
                 pattern: { value: /^\S+@\S+\.\S+$/, message: 'Enter a valid email' },
