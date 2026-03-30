@@ -76,12 +76,7 @@ export default function ProfilePage() {
 
           <div className="grid-2">
             <div className="card" style={{ height:'fit-content' }}>
-              <div className="flex items-center justify-between mb-4">
-                <div className="card-title flex items-center gap-2" style={{ margin:0 }}><UserIcon size={20} className="text-primary" /> Account Information</div>
-                <button className="btn btn-secondary btn-sm flex items-center gap-2" onClick={() => setEditMode(true)}>
-                  <Settings size={14} /> Edit
-                </button>
-              </div>
+              <div className="card-title flex items-center gap-2 mb-4"><UserIcon size={20} className="text-primary" /> Account Information</div>
               <div className="profile-details">
                 <div className="detail-item">
                   <UserIcon size={18} />
@@ -120,8 +115,11 @@ export default function ProfilePage() {
                 </div>
               </div>
               
-              <div style={{ marginTop:'2rem', borderTop:'1px solid var(--border)', paddingTop:'1.5rem' }}>
-                <button className="btn btn-danger btn-full flex items-center justify-center gap-2" onClick={handleLogout}>
+              <div style={{ marginTop:'2rem', borderTop:'1px solid var(--border)', paddingTop:'1.5rem', display:'flex', gap:'1rem' }}>
+                <button className="btn btn-secondary flex-1 flex items-center justify-center gap-2" onClick={() => setEditMode(true)}>
+                  <Settings size={16} /> Edit Profile
+                </button>
+                <button className="btn btn-danger flex-1 flex items-center justify-center gap-2" onClick={handleLogout}>
                   <LogOut size={16} /> Logout
                 </button>
               </div>
