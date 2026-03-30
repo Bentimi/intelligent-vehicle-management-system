@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://vehicle-management-service.onrender.com/api' || 'http://localhost:5000/api',
+  baseURL: import.meta.env.URL,
   // baseURL: 'http://localhost:5000/api',
   withCredentials: true, // send cookies
 });
