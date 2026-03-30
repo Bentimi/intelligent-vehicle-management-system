@@ -112,7 +112,7 @@ export default function ScanPage() {
                   <input
                     id="vehicle-id-input"
                     className="form-input text-center"
-                    placeholder="Vehicle ID or Plate..."
+                    placeholder="Plate Number..."
                     value={vehicleId}
                     onChange={(e) => setVehicleId(e.target.value)}
                     style={{ fontFamily:'monospace', fontSize:'0.81rem' }}
