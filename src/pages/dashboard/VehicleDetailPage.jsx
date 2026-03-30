@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
@@ -67,8 +67,12 @@ export default function VehicleDetailPage() {
   const { data: vehicle, isLoading: vLoading } = useQuery({
     queryKey: ['vehicle', id],
     queryFn: () => api.get(`/vehicle/${id}`).then((r) => r.data?.data),
-    onSuccess: (v) => reset(v),
   })
+
+  // Sync form with vehicle data as soon as it loads
+  useEffect(() => {
+    if (vehicle) reset(vehicle)
+  }, [vehicle, reset])
 
   const { data: logQueryResult, isLoading: lLoading } = useQuery({
     queryKey: ['logs', id, logPage, logPageSize, searchLogFinal],
@@ -228,7 +232,7 @@ export default function VehicleDetailPage() {
                 <div style={{ display:'flex', gap:'0.75rem', flexWrap:'wrap' }}>
                   {(user?.role === 'admin' || user?.role === 'cso') && (
                     <>
-                      <button className="btn btn-secondary btn-sm flex items-center gap-2" onClick={() => setEditMode(true)}>
+                      <button className="btn btn-secondary btn-sm flex items-center gap-2" onClick={() => { reset(vehicle); setEditMode(true); }}>
                         <Edit size={14} /> Edit
                       </button>
                       <button
