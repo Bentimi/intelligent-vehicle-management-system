@@ -72,7 +72,7 @@ export default function LoginPage() {
               id="password"
               type="password"
               className="form-input"
-              placeholder="••••••••"
+              placeholder="password"
               {...register('password', { required: 'Password is required', minLength: { value: 6, message: 'Min 6 characters' } })}
             />
             {errors.password && <span className="form-error">{errors.password.message}</span>}

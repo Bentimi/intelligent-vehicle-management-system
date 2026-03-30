@@ -53,8 +53,8 @@ export default function SignupPage() {
               <label className="form-label">First name</label>
               <input
                 className="form-input"
-                placeholder="John"
-                {...register('first_name', { required: 'Required' })}
+                placeholder="enter first name"
+                {...register('first_name', { required: 'First name is required' })}
               />
               {errors.first_name && <span className="form-error">{errors.first_name.message}</span>}
             </div>
@@ -62,8 +62,8 @@ export default function SignupPage() {
               <label className="form-label">Last name</label>
               <input
                 className="form-input"
-                placeholder="Doe"
-                {...register('last_name', { required: 'Required' })}
+                placeholder="enter last name"
+                {...register('last_name', { required: 'Last name is required' })}
               />
               {errors.last_name && <span className="form-error">{errors.last_name.message}</span>}
             </div>
@@ -74,7 +74,7 @@ export default function SignupPage() {
             <input
               type="email"
               className="form-input"
-              placeholder="you@university.edu"
+              placeholder="enter email address"
               {...register('email', {
                 required: 'Email is required',
                 pattern: { value: /^\S+@\S+\.\S+$/, message: 'Enter a valid email' },
@@ -86,7 +86,7 @@ export default function SignupPage() {
           <div className="form-group">
             <label className="form-label">Gender</label>
             <select className="form-select" {...register('gender', { required: 'Select a gender' })}>
-              <option value="">— select —</option>
+              <option value="">select gender</option>
               <option value="male">Male</option>
               <option value="female">Female</option>
               <option value="others">Others</option>
@@ -100,8 +100,8 @@ export default function SignupPage() {
               <input
                 type="password"
                 className="form-input"
-                placeholder="••••••••"
-                {...register('password', { required: 'Password required', minLength: { value: 6, message: 'Min 6 chars' } })}
+                placeholder="enter password"
+                {...register('password', { required: 'Password is required', minLength: { value: 8, message: 'Min 8 chars' } })}
               />
               {errors.password && <span className="form-error">{errors.password.message}</span>}
             </div>
@@ -110,7 +110,7 @@ export default function SignupPage() {
               <input
                 type="password"
                 className="form-input"
-                placeholder="••••••••"
+                placeholder="confirm password"
                 {...register('confirmPassword', {
                   required: 'Please confirm',
                   validate: (v) => v === watch('password') || 'Passwords do not match',

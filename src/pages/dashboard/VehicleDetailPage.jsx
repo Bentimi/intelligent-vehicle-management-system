@@ -175,32 +175,36 @@ export default function VehicleDetailPage() {
                 <div className="form-row">
                   <div className="form-group">
                     <label className="form-label">Plate number</label>
-                    <input className="form-input" {...register('plate_number', { required:'Required' })} />
+                    <input className="form-input" {...register('plate_number', { required:'plate number is required' })} />
                     {errors.plate_number && <span className="form-error">{errors.plate_number.message}</span>}
                   </div>
                   <div className="form-group">
                     <label className="form-label">Type</label>
-                    <select className="form-select" {...register('vehicle_type')}>
+                    <select className="form-select" {...register('vehicle_type', { required: 'Type is required' })}>
                       <option value="car">Car</option>
                       <option value="bike">Bike</option>
                       <option value="bus">Bus</option>
                       <option value="truck">Truck</option>
                     </select>
+                    {errors.vehicle_type && <span className="form-error">{errors.vehicle_type.message}</span>}
                   </div>
                 </div>
                 <div className="form-row">
                   <div className="form-group">
                     <label className="form-label">Model</label>
-                    <input className="form-input" {...register('model')} />
+                    <input className="form-input" {...register('model', { required: 'Model is required' })} />
+                    {errors.model && <span className="form-error">{errors.model.message}</span>}
                   </div>
                   <div className="form-group">
                     <label className="form-label">Color</label>
-                    <input className="form-input" {...register('color')} />
+                    <input className="form-input" {...register('color', { required: 'Color is required' })} />
+                    {errors.color && <span className="form-error">{errors.color.message}</span>}
                   </div>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Description</label>
-                  <textarea className="form-textarea" {...register('vehicle_description')} />
+                  <textarea className="form-textarea" {...register('vehicle_description', { required: 'Description is required' })} />
+                  {errors.vehicle_description && <span className="form-error">{errors.vehicle_description.message}</span>}
                 </div>
                 <div style={{ display:'flex', gap:'0.75rem', justifyContent:'flex-end' }}>
                   <button type="button" className="btn btn-secondary" onClick={() => { setEditMode(false); reset(vehicle) }}>Cancel</button>

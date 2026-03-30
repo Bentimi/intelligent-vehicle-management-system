@@ -195,34 +195,35 @@ export default function ProfilePage() {
           </div>
           {/* Edit Profile Modal */}
           {editMode && (
-            <div className="modal-overlay" onClick={() => setEditMode(false)}>
+            <div className="modal-overlay" onClick={() => { setEditMode(false); reset(profile); }}>
               <div className="modal" onClick={(e) => e.stopPropagation()}>
-                <button className="modal-close" onClick={() => setEditMode(false)}><X size={16} /></button>
+                <button className="modal-close" onClick={() => { setEditMode(false); reset(profile); }}><X size={16} /></button>
                 <div className="modal-title flex items-center gap-2"><Settings size={20} /> Edit Profile</div>
                 <form onSubmit={handleSubmit(onSubmit)}>
                   <div className="form-row">
                     <div className="form-group">
                       <label className="form-label">First Name</label>
-                      <input className="form-input" {...register('first_name', { required: 'Required' })} />
+                      <input className="form-input" placeholder='Enter first name' {...register('first_name', { required: 'first name is required' })} />
                       {errors.first_name && <span className="form-error">{errors.first_name.message}</span>}
                     </div>
                     <div className="form-group">
                       <label className="form-label">Last Name</label>
-                      <input className="form-input" {...register('last_name', { required: 'Required' })} />
+                      <input className="form-input" placeholder='Enter last name' {...register('last_name', { required: 'Last name is required' })} />
                       {errors.last_name && <span className="form-error">{errors.last_name.message}</span>}
                     </div>
                   </div>
                   <div className="form-group">
                     <label className="form-label">Email Address</label>
-                    <input className="form-input" type="email" {...register('email', { required: 'Required' })} />
+                    <input className="form-input" placeholder='Enter email address' type="email" {...register('email', { required: 'Email is required' })} />
                     {errors.email && <span className="form-error">{errors.email.message}</span>}
                   </div>
                   <div className="form-group">
                     <label className="form-label">Phone Number</label>
-                    <input className="form-input" {...register('phone_number')} />
+                    <input className="form-input" placeholder='Enter phone number' {...register('phone_number', { required: 'Phone number is required' })} />
+                  {errors.phone_number && <span className="form-error">{errors.phone_number.message}</span>}
                   </div>
                   <div style={{ display:'flex', gap:'1rem', marginTop:'1.5rem' }}>
-                    <button type="button" className="btn btn-secondary flex-1" onClick={() => setEditMode(false)}>Cancel</button>
+                    <button type="button" className="btn btn-secondary flex-1" onClick={() => { setEditMode(false); reset(profile); }}>Cancel</button>
                     <button type="submit" className={`btn btn-primary flex-1 flex items-center justify-center gap-2${saving ? ' btn-loading' : ''}`} disabled={saving}>
                       {saving ? <Loader2 size={16} className="animate-spin" /> : <UserIcon size={16} />}
                       {saving ? 'Saving...' : 'Save Changes'}

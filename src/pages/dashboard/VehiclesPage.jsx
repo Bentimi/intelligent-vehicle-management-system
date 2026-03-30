@@ -31,25 +31,25 @@ function RegisterVehicleModal({ open, onClose, onSuccess }) {
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay" onClick={() => { reset(); onClose(); }}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close" onClick={onClose}><X size={20} /></button>
+        <button className="modal-close" onClick={() => { reset(); onClose(); }}><X size={20} /></button>
         <div className="modal-title flex items-center gap-2"><CarFront size={20} className="text-primary" /> Register New Vehicle</div>
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
           <div className="form-group">
             <label className="form-label">Vehicle owner (email or phone)</label>
-            <input className="form-input" placeholder="owner@email.com or +234..." {...register('user', { required: 'Required' })} />
+            <input className="form-input" placeholder="owner@email.com or +234..." {...register('user', { required: 'Field is required' })} />
             {errors.user && <span className="form-error">{errors.user.message}</span>}
           </div>
           <div className="form-row">
             <div className="form-group">
               <label className="form-label">Plate number</label>
-              <input className="form-input" placeholder="ABC-123-XY" {...register('plate_number', { required: 'Required' })} />
+              <input className="form-input" placeholder="ABC-123-XY" {...register('plate_number', { required: 'Plate number is required' })} />
               {errors.plate_number && <span className="form-error">{errors.plate_number.message}</span>}
             </div>
             <div className="form-group">
               <label className="form-label">Vehicle type</label>
-              <select className="form-select" {...register('vehicle_type', { required: 'Required' })}>
+              <select className="form-select" {...register('vehicle_type', { required: 'Vehicle type is required' })}>
                 <option value="">— select —</option>
                 <option value="car">Car</option>
                 <option value="bike">Bike</option>
@@ -62,22 +62,22 @@ function RegisterVehicleModal({ open, onClose, onSuccess }) {
           <div className="form-row">
             <div className="form-group">
               <label className="form-label">Model</label>
-              <input className="form-input" placeholder="Toyota Corolla" {...register('model', { required: 'Required' })} />
+              <input className="form-input" placeholder="Toyota Corolla" {...register('model', { required: 'Model is required' })} />
               {errors.model && <span className="form-error">{errors.model.message}</span>}
             </div>
             <div className="form-group">
               <label className="form-label">Color</label>
-              <input className="form-input" placeholder="Silver" {...register('color', { required: 'Required' })} />
+              <input className="form-input" placeholder="Silver" {...register('color', { required: 'Color is required' })} />
               {errors.color && <span className="form-error">{errors.color.message}</span>}
             </div>
           </div>
           <div className="form-group">
             <label className="form-label">Description</label>
-            <textarea className="form-textarea" placeholder="e.g. 2018 Toyota Corolla, silver..." {...register('vehicle_description', { required: 'Required' })} />
+            <textarea className="form-textarea" placeholder="e.g. 2018 Toyota Corolla, silver..." {...register('vehicle_description', { required: 'Description is required' })} />
             {errors.vehicle_description && <span className="form-error">{errors.vehicle_description.message}</span>}
           </div>
           <div style={{ display:'flex', gap:'0.75rem', justifyContent:'flex-end' }}>
-            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
+            <button type="button" className="btn btn-secondary" onClick={() => { reset(); onClose(); }}>Cancel</button>
             <button type="submit" className={`btn btn-primary flex items-center gap-2${loading ? ' btn-loading' : ''}`} disabled={loading}>
               {loading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
               {loading ? 'Registering...' : 'Register'}
