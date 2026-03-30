@@ -6,23 +6,7 @@ const api = axios.create({
   withCredentials: true, // send cookies
 });
 
-// Read a cookie by name
-function getCookie(name) {
-  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-  return match ? match[2] : null;
-}
-
-// Request interceptor: attach CSRF token for state-changing methods
-api.interceptors.request.use((config) => {
-  const mutating = ['POST', 'PUT', 'PATCH', 'DELETE'];
-  if (mutating.includes((config.method || '').toUpperCase())) {
-    const csrf = getCookie('csrfToken');
-    if (csrf) {
-      config.headers['X-CSRF-Token'] = csrf;
-    }
-  }
-  return config;
-});
+// Frontend does not need to send CSRF manually since it's stored in HttpOnly cookies
 
 // Flag to prevent infinite refresh loops
 let isRefreshing = false;
