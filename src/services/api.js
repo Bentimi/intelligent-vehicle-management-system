@@ -49,8 +49,8 @@ api.interceptors.response.use(
         return api(original);
       } catch (refreshError) {
         processQueue(refreshError);
-        // Fully dead session (refresh token expired) -> auto refresh page
-        window.location.reload();
+        // Fully dead session (refresh token expired) -> let AuthContext handle state clearing
+        window.dispatchEvent(new Event('session_expired'));
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

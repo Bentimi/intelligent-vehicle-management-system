@@ -21,6 +21,13 @@ export function AuthProvider({ children }) {
       });
   }, []);
 
+  // Handle mid-flight session expiration
+  useEffect(() => {
+    const handleExpired = () => setUser(null);
+    window.addEventListener('session_expired', handleExpired);
+    return () => window.removeEventListener('session_expired', handleExpired);
+  }, []);
+
   const login = useCallback(async (credentials) => {
     setIsLoading(true);
     try {
