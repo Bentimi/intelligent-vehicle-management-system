@@ -44,13 +44,13 @@ function RegisterVehicleModal({ open, onClose, onSuccess }) {
           <div className="form-row">
             <div className="form-group">
               <label className="form-label">Plate number</label>
-              <input className="form-input" placeholder="ABC-123-XY" {...register('plate_number', { required: 'Plate number is required' })} />
+              <input className="form-input" placeholder="ABC-123-WXYZ" {...register('plate_number', { required: 'Plate number is required' })} />
               {errors.plate_number && <span className="form-error">{errors.plate_number.message}</span>}
             </div>
             <div className="form-group">
               <label className="form-label">Vehicle type</label>
               <select className="form-select" {...register('vehicle_type', { required: 'Vehicle type is required' })}>
-                <option value="">— select —</option>
+                <option value="">select type</option>
                 <option value="car">Car</option>
                 <option value="bike">Bike</option>
                 <option value="bus">Bus</option>
