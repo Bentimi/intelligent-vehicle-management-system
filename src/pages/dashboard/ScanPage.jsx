@@ -152,11 +152,12 @@ export default function ScanPage() {
 
                 <div style={{ display:'grid', gap:'1.25rem' }}>
                   {[
+                    ['Plate Number', result.vehicle?.plate_number || '—'],
                     ['Status', result.status],
                     ['Entry Time', result.entryTime ? new Date(result.entryTime).toLocaleString() : '—'],
                     ['Exit Time', result.exitTime ? new Date(result.exitTime).toLocaleString() : '—'],
                     ['Duration', result.duration != null ? `${result.duration} mins` : '—'],
-                    ['Scanned by', result.scannedBy ? `${result.scannedBy.first_name || ''} ${result.scannedBy.last_name || ''}`.trim() || result.scannedBy : '—'],
+                    ['Scanned by', result.scannedBy ? result.scannedBy.email || `${result.scannedBy.first_name || ''} ${result.scannedBy.last_name || ''}`.trim() || result.scannedBy : '—'],
                     ['Logged at', result.createdAt ? new Date(result.createdAt).toLocaleString() : '—'],
                   ].map(([label, val]) => (
                     <div key={label} className="log-item">

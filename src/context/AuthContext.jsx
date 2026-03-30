@@ -4,17 +4,22 @@ import api from '../services/api';
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser]         = useState(() => {
-    try { return JSON.parse(localStorage.getItem('cg_user')) || null; }
-    catch { return null; }
-  });
-  const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Persist user to localStorage whenever it changes
+  // Validate session on mount via secure cookie (HttpOnly)
   useEffect(() => {
-    if (user) localStorage.setItem('cg_user', JSON.stringify(user));
-    else      localStorage.removeItem('cg_user');
-  }, [user]);
+    api.get('/user/me')
+      .then((res) => {
+        setUser(res.data?.data?.user);
+      })
+      .catch(() => {
+        setUser(null);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, []);
 
   const login = useCallback(async (credentials) => {
     setIsLoading(true);

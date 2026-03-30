@@ -16,8 +16,7 @@ function getCookie(name) {
 api.interceptors.request.use((config) => {
   const mutating = ['POST', 'PUT', 'PATCH', 'DELETE'];
   if (mutating.includes((config.method || '').toUpperCase())) {
-    // Try localStorage first (for cross-domain), then cookie (fallback)
-    const csrf = localStorage.getItem('cg_csrf') || getCookie('csrfToken');
+    const csrf = getCookie('csrfToken');
     if (csrf) {
       config.headers['X-CSRF-Token'] = csrf;
     }
@@ -37,14 +36,9 @@ function processQueue(error) {
   failedQueue = [];
 }
 
-// Response interceptor: capture CSRF token then auto-refresh on 401
+// Response interceptor: auto-refresh on 401
 api.interceptors.response.use(
   (res) => {
-    // Capture CSRF token if returned in response body
-    const csrf = res.data?.data?.csrfToken;
-    if (csrf) {
-      localStorage.setItem('cg_csrf', csrf);
-    }
     return res;
   },
   async (error) => {
@@ -71,8 +65,8 @@ api.interceptors.response.use(
         return api(original);
       } catch (refreshError) {
         processQueue(refreshError);
-        // Redirect to login if refresh fails
-        window.location.href = '/login';
+        // Fully dead session (refresh token expired) -> auto refresh page
+        window.location.reload();
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

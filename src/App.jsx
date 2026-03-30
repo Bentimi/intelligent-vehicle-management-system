@@ -20,7 +20,16 @@ const roleHome = {
 }
 
 function RootRedirect() {
-  const { user } = useAuth()
+  const { user, isLoading } = useAuth()
+  
+  if (isLoading) {
+    return (
+      <div style={{ display: 'flex', height: '100vh', width: '100vw', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="spinner" style={{ width: '40px', height: '40px', borderWidth: '4px' }} />
+      </div>
+    );
+  }
+  
   if (user) return <Navigate to={roleHome[user.role] || '/dashboard/profile'} replace />
   return <Navigate to="/login" replace />
 }

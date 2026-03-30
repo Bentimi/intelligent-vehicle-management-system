@@ -53,7 +53,7 @@ export default function SignupPage() {
               <label className="form-label">First name</label>
               <input
                 className="form-input"
-                placeholder="enter first name"
+                placeholder="Enter first name"
                 {...register('first_name', { required: 'First name is required' })}
               />
               {errors.first_name && <span className="form-error">{errors.first_name.message}</span>}
@@ -62,7 +62,7 @@ export default function SignupPage() {
               <label className="form-label">Last name</label>
               <input
                 className="form-input"
-                placeholder="enter last name"
+                placeholder="Enter last name"
                 {...register('last_name', { required: 'Last name is required' })}
               />
               {errors.last_name && <span className="form-error">{errors.last_name.message}</span>}
@@ -74,7 +74,7 @@ export default function SignupPage() {
             <input
               type="email"
               className="form-input"
-              placeholder="enter email address"
+              placeholder="Enter email address"
               {...register('email', {
                 required: 'Email is required',
                 pattern: { value: /^\S+@\S+\.\S+$/, message: 'Enter a valid email' },
@@ -100,7 +100,7 @@ export default function SignupPage() {
               <input
                 type="password"
                 className="form-input"
-                placeholder="enter password"
+                placeholder="Enter password"
                 {...register('password', { required: 'Password is required', minLength: { value: 8, message: 'Min 8 chars' } })}
               />
               {errors.password && <span className="form-error">{errors.password.message}</span>}
@@ -110,7 +110,7 @@ export default function SignupPage() {
               <input
                 type="password"
                 className="form-input"
-                placeholder="confirm password"
+                placeholder="Confirm password"
                 {...register('confirmPassword', {
                   required: 'Please confirm',
                   validate: (v) => v === watch('password') || 'Passwords do not match',

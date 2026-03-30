@@ -70,8 +70,8 @@ export default function ProfilePage() {
       ) : (
         <div className="animate-slide-up" style={{ maxWidth: '1000px', margin: '0 auto' }}>
           <div className="page-header">
-            <h1><UserIcon className="inline-block mr-2" /> My Profile</h1>
-            <p>View and manage your personal information</p>
+            <h1 style={{ fontWeight: 800 }}><UserIcon className="inline-block mr-2" /> {profile ? `${profile.first_name} ${profile.last_name}` : 'My Profile'}</h1>
+            {profile && <p style={{ fontWeight: 600 }}>REG NO: <span style={{ textTransform: 'uppercase' }}>{profile.reg_number}</span> · <span style={{ textTransform: 'capitalize' }}>{profile.role}</span></p>}
           </div>
 
           <div className="grid-2">
@@ -104,6 +104,13 @@ export default function ProfilePage() {
                   <div className="flex-1">
                     <div className="detail-label">System Role</div>
                     <div className="detail-value capitalize">{profile?.role}</div>
+                  </div>
+                </div>
+                <div className="detail-item">
+                  <UserIcon size={18} />
+                  <div className="flex-1">
+                    <div className="detail-label">Registration Number</div>
+                    <div className="detail-value uppercase">{profile?.reg_number || '—'}</div>
                   </div>
                 </div>
                 <div className="detail-item">
@@ -216,6 +223,11 @@ export default function ProfilePage() {
                     <label className="form-label">Email Address</label>
                     <input className="form-input" placeholder='Enter email address' type="email" {...register('email', { required: 'Email is required' })} />
                     {errors.email && <span className="form-error">{errors.email.message}</span>}
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Registration Number</label>
+                    <input className="form-input" placeholder='Enter registration number' {...register('reg_number', { required: 'Registration number is required' })} />
+                    {errors.reg_number && <span className="form-error">{errors.reg_number.message}</span>}
                   </div>
                   <div className="form-group">
                     <label className="form-label">Phone Number</label>

@@ -72,7 +72,7 @@ export default function LoginPage() {
               id="password"
               type="password"
               className="form-input"
-              placeholder="password"
+              placeholder="Enter password"
               {...register('password', { required: 'Password is required', minLength: { value: 6, message: 'Min 6 characters' } })}
             />
             {errors.password && <span className="form-error">{errors.password.message}</span>}
@@ -84,7 +84,7 @@ export default function LoginPage() {
             className={`btn btn-primary btn-full btn-lg flex items-center justify-center gap-2${isLoading ? ' btn-loading' : ''}`}
             disabled={isLoading}
           >
-            {isLoading ? '' : <><ArrowRight size={18} /> Sign In</>}
+            {isLoading ? '' : <> Sign In<ArrowRight size={18} /> </>}
           </button>
         </form>
 

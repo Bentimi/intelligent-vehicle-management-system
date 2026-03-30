@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router'
+import { useParams, useNavigate, Link } from 'react-router'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
@@ -9,7 +9,7 @@ import api from '../../services/api'
 import Layout from '../../components/Layout'
 import useDebounce from '../../hooks/useDebounce'
 
-function LogTable({ logs }) {
+function LogTable({ logs, userRole }) {
   if (!logs?.length) return (
     <div className="empty-state">
       <div className="empty-state-icon flex justify-center mb-4"><ClipboardList size={48} className="text-muted" /></div>
@@ -37,7 +37,15 @@ function LogTable({ logs }) {
               <td>{log.exitTime  ? new Date(log.exitTime).toLocaleString()  : '—'}</td>
               <td>{log.duration != null ? `${log.duration} mins` : '—'}</td>
               <td style={{ fontSize:'0.82rem' }}>
-                {log.scannedBy ? `${log.scannedBy.first_name || ''} ${log.scannedBy.last_name || ''}`.trim() || '—' : '—'}
+                {log.scannedBy ? (
+                  userRole === 'admin' ? (
+                    <Link to={`/dashboard/admin/users/${log.scannedBy._id}`} className="text-primary hover:underline font-medium">
+                      {log.scannedBy.email || `${log.scannedBy.first_name || ''} ${log.scannedBy.last_name || ''}`.trim()}
+                    </Link>
+                  ) : (
+                    log.scannedBy.email || `${log.scannedBy.first_name || ''} ${log.scannedBy.last_name || ''}`.trim()
+                  )
+                ) : '—'}
               </td>
             </tr>
           ))}
@@ -320,7 +328,7 @@ export default function VehicleDetailPage() {
           {lLoading ? (
             <div className="inline-loader"><div className="spinner" /></div>
           ) : (
-            <LogTable logs={logData} />
+            <LogTable logs={logData} userRole={user?.role} />
           )}
           {logData && logTotal > 0 && (
             <div className="pagination" style={{ padding: '1rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem' }}>

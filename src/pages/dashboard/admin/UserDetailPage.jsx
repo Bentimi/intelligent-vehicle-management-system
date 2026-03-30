@@ -72,7 +72,7 @@ export default function UserDetailPage() {
         <div className="card" style={{ display:'flex', alignItems:'center', gap:'1.5rem', marginBottom:'1.5rem' }}>
           <div style={{
             width:72, height:72, borderRadius:'50%',
-            background:'linear-gradient(135deg, var(--primary), var(--accent))',
+            background:'linear-gradient(135deg, var(--primary), var(--primary))',
             display:'flex', alignItems:'center', justifyContent:'center',
             fontSize:'1.75rem', fontWeight:800, color:'white', flexShrink:0,
             boxShadow:'0 4px 20px var(--primary-glow)'
