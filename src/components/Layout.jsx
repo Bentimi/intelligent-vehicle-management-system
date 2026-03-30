@@ -80,11 +80,16 @@ export default function Layout({ children, title = 'Dashboard' }) {
       <aside className={`sidebar${sidebarOpen ? ' open' : ''}${collapsed ? ' collapsed' : ''}`}>
         {/* Logo */}
         <div className="sidebar-logo">
-          <div className="sidebar-logo-mark"><ShieldCheck size={22} className="text-white" /></div>
-          <div>
-            <div className="sidebar-logo-text">CampusGate</div>
-            <span className="sidebar-logo-sub">Access Management</span>
+          <div className="sidebar-logo-brand">
+            <div className="sidebar-logo-mark"><ShieldCheck size={22} className="text-white" /></div>
+            <div style={{ flex: 1 }}>
+              <div className="sidebar-logo-text">CampusGate</div>
+              <span className="sidebar-logo-sub">Access Management</span>
+            </div>
           </div>
+          <button className="sidebar-mobile-close" onClick={() => setSidebarOpen(false)}>
+            <X size={20} />
+          </button>
         </div>
 
         {/* Navigation */}

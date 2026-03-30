@@ -13,10 +13,22 @@ export default function ScanPage() {
 
   const submitScan = async (idToScan) => {
     if (!idToScan) return
+    let cleanId = idToScan.trim();
+
+    // If scanned data is a JSON string, try to extract the ID
+    if (cleanId.startsWith('{')) {
+      try {
+        const parsed = JSON.parse(cleanId);
+        if (parsed.vehicleId) cleanId = parsed.vehicleId;
+      } catch (err) {
+        // Keep as is if not valid JSON
+      }
+    }
+
     setLoading(true)
     setResult(null)
     try {
-      const res = await api.post('/log/scan', { vehicleId: idToScan })
+      const res = await api.post('/log/scan', { vehicleId: cleanId })
       const log = res.data?.data
       setResult(log)
       toast.success(`Vehicle scanned — Status: ${log?.status}`)
