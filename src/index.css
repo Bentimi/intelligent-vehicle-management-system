@@ -1203,6 +1203,7 @@ tbody tr:last-child td { border-bottom: none; }
     justify-content: center;
   }
 }
+}
 
 @theme inline {
   --font-heading: var(--font-sans);
