@@ -3,10 +3,8 @@ import axios from 'axios';
 const api = axios.create({
   // baseURL: 'http://localhost:5000/api',
   baseURL: 'https://vehicle-management-service.onrender.com/api',
-  withCredentials: true, // send cookies
+  withCredentials: true,
 });
-
-// Frontend does not need to send CSRF manually since it's stored in HttpOnly cookies
 
 // Flag to prevent infinite refresh loops
 let isRefreshing = false;

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
-import { ArrowLeft, Edit, Save, UserCircle, Loader2, Shield, X } from 'lucide-react'
+import { ArrowLeft, Edit, Save, UserCircle, Loader2, Shield, X, Mail, Phone, Calendar, Hash, Heart, Clock, Car, ChevronLeft, ChevronRight } from 'lucide-react'
 import api from '../../../services/api'
 import Layout from '../../../components/Layout'
 import { useAuth } from '../../../context/AuthContext'
@@ -18,6 +18,9 @@ export default function UserDetailPage() {
   const [roleSaving, setRoleSaving] = useState(false)
   const { user: currentUser } = useAuth()
 
+  const [vPage, setVPage] = useState(1)
+  const [vPageSize, setVPageSize] = useState(5)
+
   const { register, handleSubmit, reset, formState: { errors } } = useForm()
   const { register: registerRole, handleSubmit: handleRoleSubmit, reset: resetRole, formState: { errors: roleErrors } } = useForm()
 
@@ -30,6 +33,15 @@ export default function UserDetailPage() {
       return u
     }),
   })
+
+  const { data: vehicleData, isLoading: vLoading } = useQuery({
+    queryKey: ['user_vehicles', id, vPage, vPageSize],
+    queryFn: () => api.get(`/vehicle?page=${vPage}&pageSize=${vPageSize}&owner=${id}`).then(r => r.data?.data),
+    enabled: !!id
+  })
+
+  const vehicles = vehicleData?.vehicles || []
+  const vTotal = vehicleData?.total || 0
 
   const onUpdate = async (data) => {
     setSaving(true)
@@ -67,7 +79,7 @@ export default function UserDetailPage() {
 
   if (isLoading) return (
     <Layout title="User Detail">
-      <div className="inline-loader"><div className="spinner" /></div>
+      <div className="inline-loader" style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div className="spinner" /></div>
     </Layout>
   )
 
@@ -79,54 +91,163 @@ export default function UserDetailPage() {
 
   return (
     <Layout title="User Detail">
-      <div className="animate-slide-up">
-        <button className="btn btn-ghost btn-sm flex items-center gap-2" style={{ marginBottom:'1rem' }} onClick={() => navigate('/dashboard/admin/users')}>
-          <ArrowLeft size={16} /> Back to users
+      <div className="animate-slide-up" style={{ maxWidth: '1000px', margin: '0 auto' }}>
+        <button className="btn btn-ghost btn-sm flex items-center gap-2" style={{ marginBottom:'1rem' }} onClick={() => navigate(-1)}>
+          <ArrowLeft size={16} /> Back
         </button>
 
         <div className="page-header">
-          <h1>{user.first_name} {user.last_name}</h1>
-          <p>Reg #{user.reg_number}</p>
+          <h1 style={{ fontWeight: 800 }}><UserCircle className="inline-block mr-2" /> {user.first_name} {user.last_name}</h1>
+          <p style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>REG NO: <span style={{ textTransform: 'uppercase' }}>{user.reg_number}</span> · <span className={`badge badge-${user.role}`}>{user.role}</span></p>
         </div>
 
-        {/* Header card */}
-        <div className="card user-header-card">
-          <div className="user-header-avatar" style={{
-            width:72, height:72, borderRadius:'50%',
-            background:'linear-gradient(135deg, var(--primary), var(--primary))',
-            display:'flex', alignItems:'center', justifyContent:'center',
-            fontSize:'1.75rem', fontWeight:800, color:'white', flexShrink:0,
-            boxShadow:'0 4px 20px var(--primary-glow)'
-          }}>
-            {getInitials(user)}
-          </div>
-          <div className="user-header-info" style={{ flex:1 }}>
-            <h2 style={{ margin:0 }}>{user.first_name} {user.last_name}</h2>
-            <div className="badge-container" style={{ display:'flex', gap:'0.5rem', marginTop:'0.4rem', flexWrap:'wrap' }}>
-              <span className={`badge badge-${user.role}`}>{user.role}</span>
-              <span className={`badge ${user.active ? 'badge-active' : 'badge-blacklisted'}`}>
-                {user.active ? 'Active' : 'Inactive'}
-              </span>
+        <div className="grid-2">
+          {/* Left Column — Account Info */}
+          <div className="card" style={{ height:'fit-content' }}>
+            <div className="card-title flex items-center gap-2 mb-4"><UserCircle size={20} className="text-primary" /> Account Information</div>
+            <div className="profile-details">
+              <div className="detail-item">
+                <Mail size={18} />
+                <div className="flex-1">
+                  <div className="detail-label">Email Address</div>
+                  <div className="detail-value">{user.email}</div>
+                </div>
+              </div>
+              <div className="detail-item">
+                <Phone size={18} />
+                <div className="flex-1">
+                  <div className="detail-label">Phone Number</div>
+                  <div className="detail-value">{user.phone_number || '—'}</div>
+                </div>
+              </div>
+              <div className="detail-item">
+                <UserCircle size={18} />
+                <div className="flex-1">
+                  <div className="detail-label">Gender</div>
+                  <div className="detail-value capitalize">{user.gender || '—'}</div>
+                </div>
+              </div>
+              <div className="detail-item">
+                <Heart size={18} />
+                <div className="flex-1">
+                  <div className="detail-label">Marital Status</div>
+                  <div className="detail-value capitalize">{user.marital_status || '—'}</div>
+                </div>
+              </div>
+              <div className="detail-item">
+                <Hash size={18} />
+                <div className="flex-1">
+                  <div className="detail-label">Registration Number</div>
+                  <div className="detail-value uppercase">{user.reg_number || '—'}</div>
+                </div>
+              </div>
+              <div className="detail-item">
+                <Shield size={18} />
+                <div className="flex-1">
+                  <div className="detail-label">System Role</div>
+                  <div className="detail-value"><span className={`badge badge-${user.role}`}>{user.role}</span></div>
+                </div>
+              </div>
+              <div className="detail-item">
+                <Clock size={18} />
+                <div className="flex-1">
+                  <div className="detail-label">Last Login</div>
+                  <div className="detail-value">{user.last_login ? new Date(user.last_login).toLocaleString() : '—'}</div>
+                </div>
+              </div>
+              <div className="detail-item">
+                <Calendar size={18} />
+                <div className="flex-1">
+                  <div className="detail-label">Member Since</div>
+                  <div className="detail-value">{user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '—'}</div>
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="user-header-actions">
-            {currentUser?.role === 'admin' && currentUser?._id !== user._id && !editMode && (
-              <button id="allocate-role-btn" className="btn btn-secondary flex items-center gap-2" onClick={() => setRoleMode(true)}>
-                <Shield size={16} /> Assign Role
-              </button>
+
+            {/* Action buttons */}
+            {currentUser?.role === 'admin' && (
+              <div className="profile-actions">
+                {currentUser?._id !== user._id && (
+                  <button className="btn btn-secondary flex-1 flex items-center justify-center gap-2" onClick={() => setRoleMode(true)}>
+                    <Shield size={16} /> Assign Role
+                  </button>
+                )}
+                <button className="btn btn-secondary flex-1 flex items-center justify-center gap-2" onClick={() => setEditMode(true)}>
+                  <Edit size={16} /> Edit User
+                </button>
+              </div>
             )}
-            {currentUser?.role === 'admin' && !editMode && (
-              <button id="edit-user-btn" className="btn btn-secondary flex items-center gap-2" onClick={() => setEditMode(true)}>
-                <Edit size={16} /> Edit
-              </button>
+          </div>
+
+          {/* Right Column — Vehicles */}
+          <div className="card" style={{ padding: 0 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'1.5rem 1.75rem 1rem' }}>
+              <div className="card-title flex items-center gap-2" style={{ margin:0 }}>
+                <Car size={20} className="text-primary" /> Vehicles ({vTotal})
+              </div>
+              <select 
+                className="form-select" 
+                style={{ width: 'auto', padding: '0.2rem 1.75rem 0.2rem 0.5rem', fontSize: '0.8rem' }} 
+                value={vPageSize} 
+                onChange={(e) => { setVPageSize(Number(e.target.value)); setVPage(1); }}
+              >
+                <option value={5}>5 per page</option>
+                <option value={10}>10 per page</option>
+              </select>
+            </div>
+
+            {vLoading ? (
+              <div className="inline-loader" style={{ minHeight: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div className="spinner" /></div>
+            ) : vehicles.length > 0 ? (
+              <>
+                <div className="table-wrapper" style={{ borderRadius: 0, border: 'none' }}>
+                  <table className="table-compact">
+                    <thead>
+                      <tr>
+                        <th>Plate Number</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {vehicles.map((v) => (
+                        <tr key={v._id} style={{ cursor:'pointer' }} onClick={() => navigate(`/dashboard/vehicles/${v._id}`)}>
+                          <td style={{ fontWeight: 500, color: 'var(--primary)' }}>{v.plate_number}</td>
+                          <td className="capitalize">{v.vehicle_type || '—'}</td>
+                          <td>
+                            <span className={`badge ${v.isBlacklisted ? 'badge-blacklisted' : 'badge-active'}`}>
+                              {v.isBlacklisted ? 'Blacklisted' : 'Active'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {vTotal > 0 && (
+                  <div className="pagination" style={{ padding:'0.75rem 1rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem' }}>
+                    <button className="pagination-btn" disabled={vPage === 1} onClick={() => setVPage(p => p-1)}><ChevronLeft size={16} /></button>
+                    <span className="text-sm font-medium">Page {vPage} of {Math.ceil(vTotal / vPageSize)}</span>
+                    <button className="pagination-btn" disabled={vehicles.length < vPageSize || vPage * vPageSize >= vTotal} onClick={() => setVPage(p => p+1)}><ChevronRight size={16} /></button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="empty-state text-center py-8">
+                <div className="empty-state-icon flex justify-center mb-4"><Car size={48} className="text-muted" /></div>
+                <h3>No vehicles</h3>
+                <p>This user has no registered vehicles.</p>
+              </div>
             )}
           </div>
         </div>
 
-        <div className="card">
-          {editMode ? (
-            <>
-              <div className="card-title flex items-center gap-2"><Edit size={18} className="text-primary" /> Edit User</div>
+        {/* Edit User Modal */}
+        {editMode && (
+          <div className="modal-overlay" onClick={() => { setEditMode(false); reset(user) }}>
+            <div className="modal" onClick={(e) => e.stopPropagation()}>
+              <button className="modal-close" onClick={() => { setEditMode(false); reset(user) }}><X size={16} /></button>
+              <div className="modal-title flex items-center gap-2"><Edit size={20} /> Edit User</div>
               <form onSubmit={handleSubmit(onUpdate)} noValidate>
                 <div className="form-row">
                   <div className="form-group">
@@ -155,7 +276,7 @@ export default function UserDetailPage() {
                   <div className="form-group">
                     <label className="form-label">Gender</label>
                     <select className="form-select" {...register('gender')}>
-                      <option value="">— select —</option>
+                      <option value="">select gender</option>
                       <option value="male">Male</option>
                       <option value="female">Female</option>
                       <option value="others">Others</option>
@@ -164,7 +285,7 @@ export default function UserDetailPage() {
                   <div className="form-group">
                     <label className="form-label">Marital status</label>
                     <select className="form-select" {...register('marital_status')}>
-                      <option value="">— select —</option>
+                      <option value="">select marital status</option>
                       <option value="single">Single</option>
                       <option value="married">Married</option>
                       <option value="divorced">Divorced</option>
@@ -172,38 +293,17 @@ export default function UserDetailPage() {
                     </select>
                   </div>
                 </div>
-                <div style={{ display:'flex', gap:'0.75rem', justifyContent:'flex-end' }}>
-                  <button type="button" className="btn btn-secondary" onClick={() => { setEditMode(false); reset(user) }}>Cancel</button>
-                  <button type="submit" className={`btn btn-primary flex items-center gap-2${saving ? ' btn-loading' : ''}`} disabled={saving}>
+                <div style={{ display:'flex', gap:'1rem', marginTop:'1.5rem' }}>
+                  <button type="button" className="btn btn-secondary flex-1" onClick={() => { setEditMode(false); reset(user) }}>Cancel</button>
+                  <button type="submit" className="btn btn-primary flex-1 flex items-center justify-center gap-2" disabled={saving}>
                     {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
                     {saving ? 'Saving...' : 'Save Changes'}
                   </button>
                 </div>
               </form>
-            </>
-          ) : (
-            <>
-              <div className="card-title flex items-center gap-2"><UserCircle size={18} className="text-primary" /> User Details</div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1.25rem' }}>
-                {[
-                  ['Email', user.email],
-                  ['Phone', user.phone_number || '—'],
-                  ['Gender', user.gender || '—'],
-                  ['Marital Status', user.marital_status || '—'],
-                  ['Last Login', user.last_login ? new Date(user.last_login).toLocaleString() : '—'],
-                  ['Reg Number', user.reg_number],
-                  ['Member since', user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '—'],
-                  ['Role', user.role],
-                ].map(([label, val]) => (
-                  <div key={label}>
-                    <div style={{ fontSize:'0.72rem', color:'var(--text-muted)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:'0.2rem' }}>{label}</div>
-                    <div style={{ fontSize:'0.9rem', color:'var(--text-primary)', fontWeight:500 }}>{val}</div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
+            </div>
+          </div>
+        )}
 
         {/* Allocate Role Modal */}
         {roleMode && (
@@ -226,7 +326,7 @@ export default function UserDetailPage() {
                 </div>
                 <div style={{ display:'flex', gap:'1rem', marginTop:'1.5rem' }}>
                   <button type="button" className="btn btn-secondary flex-1" onClick={() => setRoleMode(false)}>Cancel</button>
-                  <button type="submit" className={`btn btn-primary flex-1 flex items-center justify-center gap-2${roleSaving ? ' btn-loading' : ''}`} disabled={roleSaving}>
+                  <button type="submit" className="btn btn-primary flex-1 flex items-center justify-center gap-2" disabled={roleSaving}>
                     {roleSaving ? <Loader2 size={16} className="animate-spin" /> : <Shield size={16} />}
                     {roleSaving ? 'Saving...' : 'Confirm Allocation'}
                   </button>

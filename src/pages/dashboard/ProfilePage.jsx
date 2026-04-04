@@ -88,7 +88,7 @@ export default function ProfilePage() {
         <div className="animate-slide-up" style={{ maxWidth: '1000px', margin: '0 auto' }}>
           <div className="page-header">
             <h1 style={{ fontWeight: 800 }}><UserIcon className="inline-block mr-2" /> {profile ? `${profile.first_name} ${profile.last_name}` : 'My Profile'}</h1>
-            {profile && <p style={{ fontWeight: 600 }}>REG NO: <span style={{ textTransform: 'uppercase' }}>{profile.reg_number}</span> · <span style={{ textTransform: 'capitalize' }}>{profile.role}</span></p>}
+            {profile && <p style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>REG NO: <span style={{ textTransform: 'uppercase' }}>{profile.reg_number}</span> · <span className={`badge badge-${profile.role}`}>{profile.role}</span></p>}
           </div>
 
           <div className="grid-2">
@@ -120,7 +120,7 @@ export default function ProfilePage() {
                   <Shield size={18} />
                   <div className="flex-1">
                     <div className="detail-label">System Role</div>
-                    <div className="detail-value capitalize">{profile?.role}</div>
+                    <div className="detail-value"><span className={`badge badge-${profile?.role}`}>{profile?.role}</span></div>
                   </div>
                 </div>
                 <div className="detail-item">
