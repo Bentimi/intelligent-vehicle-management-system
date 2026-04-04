@@ -90,8 +90,8 @@ export default function UserDetailPage() {
         </div>
 
         {/* Header card */}
-        <div className="card" style={{ display:'flex', alignItems:'center', gap:'1.5rem', marginBottom:'1.5rem' }}>
-          <div style={{
+        <div className="card user-header-card">
+          <div className="user-header-avatar" style={{
             width:72, height:72, borderRadius:'50%',
             background:'linear-gradient(135deg, var(--primary), var(--primary))',
             display:'flex', alignItems:'center', justifyContent:'center',
@@ -100,22 +100,22 @@ export default function UserDetailPage() {
           }}>
             {getInitials(user)}
           </div>
-          <div style={{ flex:1 }}>
+          <div className="user-header-info" style={{ flex:1 }}>
             <h2 style={{ margin:0 }}>{user.first_name} {user.last_name}</h2>
-            <div style={{ display:'flex', gap:'0.5rem', marginTop:'0.4rem', flexWrap:'wrap' }}>
+            <div className="badge-container" style={{ display:'flex', gap:'0.5rem', marginTop:'0.4rem', flexWrap:'wrap' }}>
               <span className={`badge badge-${user.role}`}>{user.role}</span>
               <span className={`badge ${user.active ? 'badge-active' : 'badge-blacklisted'}`}>
                 {user.active ? 'Active' : 'Inactive'}
               </span>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            {currentUser?._id !== user._id && !editMode && (
+          <div className="user-header-actions">
+            {currentUser?.role === 'admin' && currentUser?._id !== user._id && !editMode && (
               <button id="allocate-role-btn" className="btn btn-secondary flex items-center gap-2" onClick={() => setRoleMode(true)}>
                 <Shield size={16} /> Assign Role
               </button>
             )}
-            {!editMode && (
+            {currentUser?.role === 'admin' && !editMode && (
               <button id="edit-user-btn" className="btn btn-secondary flex items-center gap-2" onClick={() => setEditMode(true)}>
                 <Edit size={16} /> Edit
               </button>

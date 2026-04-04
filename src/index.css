@@ -1151,10 +1151,57 @@ tbody tr:last-child td { border-bottom: none; }
     white-space: nowrap !important; /* Final check to prevent ANY data breaking */
     word-break: keep-all;
   }
+.profile-actions {
+  margin-top: 2rem;
+  border-top: 1px solid var(--border);
+  padding-top: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
-@media (max-width: 480px) {
+.user-header-card {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.user-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
   .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+  .profile-actions { flex-direction: column; }
+  
+  .user-header-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  .user-header-avatar {
+    margin: 0 auto;
+  }
+  .user-header-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .user-header-info .badge-container {
+    justify-content: center;
+  }
+  .user-header-actions {
+    width: 100%;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .user-header-actions button {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 @theme inline {

@@ -139,7 +139,7 @@ export default function ProfilePage() {
                 </div>
               </div>
               
-              <div style={{ marginTop:'2rem', borderTop:'1px solid var(--border)', paddingTop:'1.5rem', display:'flex', gap:'0.75rem', flexWrap:'wrap' }}>
+              <div className="profile-actions">
                 <button className="btn btn-secondary flex-1 flex items-center justify-center gap-2" onClick={() => setEditMode(true)}>
                   <Settings size={16} /> Edit Profile
                 </button>

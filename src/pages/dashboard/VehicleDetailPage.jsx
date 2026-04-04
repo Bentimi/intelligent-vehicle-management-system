@@ -26,7 +26,7 @@ function LogTable({ logs, userRole }) {
             <th>Entry Time</th>
             <th>Exit Time</th>
             <th>Duration</th>
-            <th>Scanned By</th>
+            {userRole !== 'security' && <th>Scanned By</th>}
           </tr>
         </thead>
         <tbody>
@@ -36,17 +36,19 @@ function LogTable({ logs, userRole }) {
               <td>{log.entryTime ? new Date(log.entryTime).toLocaleString() : '—'}</td>
               <td>{log.exitTime  ? new Date(log.exitTime).toLocaleString()  : '—'}</td>
               <td>{log.duration != null ? `${log.duration} mins` : '—'}</td>
-              <td style={{ fontSize:'0.82rem' }}>
-                {log.scannedBy ? (
-                  userRole === 'admin' ? (
-                    <Link to={`/dashboard/admin/users/${log.scannedBy._id}`} className="text-primary hover:underline font-medium">
-                      {log.scannedBy.email || `${log.scannedBy.first_name || ''} ${log.scannedBy.last_name || ''}`.trim()}
-                    </Link>
-                  ) : (
-                    log.scannedBy.email || `${log.scannedBy.first_name || ''} ${log.scannedBy.last_name || ''}`.trim()
-                  )
-                ) : '—'}
-              </td>
+              {userRole !== 'security' && (
+                <td style={{ fontSize:'0.82rem' }}>
+                  {log.scannedBy ? (
+                    (userRole === 'admin' || userRole === 'cso') ? (
+                      <Link to={`/dashboard/admin/users/${log.scannedBy._id}`} className="text-primary hover:underline font-medium">
+                        {log.scannedBy.email || `${log.scannedBy.first_name || ''} ${log.scannedBy.last_name || ''}`.trim()}
+                      </Link>
+                    ) : (
+                      log.scannedBy.email || `${log.scannedBy.first_name || ''} ${log.scannedBy.last_name || ''}`.trim()
+                    )
+                  ) : '—'}
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
@@ -240,21 +242,21 @@ export default function VehicleDetailPage() {
                   ))}
                 </div>
                 <div style={{ display:'flex', gap:'0.75rem', flexWrap:'wrap' }}>
+                  {(user?.role === 'admin' || user?.role === 'cso' || vehicle.user?._id === user?._id || vehicle.user === user?._id) && (
+                    <button className="btn btn-secondary btn-sm flex items-center gap-2" onClick={() => { reset(vehicle); setEditMode(true); }}>
+                      <Edit size={14} /> Edit
+                    </button>
+                  )}
                   {(user?.role === 'admin' || user?.role === 'cso') && (
-                    <>
-                      <button className="btn btn-secondary btn-sm flex items-center gap-2" onClick={() => { reset(vehicle); setEditMode(true); }}>
-                        <Edit size={14} /> Edit
-                      </button>
-                      <button
-                        id="blacklist-btn"
-                        className={`btn btn-sm flex items-center gap-2 ${vehicle.isBlacklisted ? 'btn-success' : 'btn-danger'}`}
-                        onClick={handleBlacklist}
-                        disabled={blisting}
-                      >
-                        {blisting ? <Loader2 size={14} className="animate-spin" /> : (vehicle.isBlacklisted ? <CheckCircle2 size={14} /> : <Ban size={14} />)}
-                        {blisting ? 'Processing...' : (vehicle.isBlacklisted ? 'Unblacklist' : 'Blacklist')}
-                      </button>
-                    </>
+                    <button
+                      id="blacklist-btn"
+                      className={`btn btn-sm flex items-center gap-2 ${vehicle.isBlacklisted ? 'btn-success' : 'btn-danger'}`}
+                      onClick={handleBlacklist}
+                      disabled={blisting}
+                    >
+                      {blisting ? <Loader2 size={14} className="animate-spin" /> : (vehicle.isBlacklisted ? <CheckCircle2 size={14} /> : <Ban size={14} />)}
+                      {blisting ? 'Processing...' : (vehicle.isBlacklisted ? 'Unblacklist' : 'Blacklist')}
+                    </button>
                   )}
                 </div>
               </div>

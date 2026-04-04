@@ -72,7 +72,7 @@ export default function App() {
       <Route
         path="/dashboard/vehicles/:id"
         element={
-          <ProtectedRoute allowedRoles={['user','staff','cso','admin']}>
+          <ProtectedRoute allowedRoles={['user','staff','security','cso','admin']}>
             <VehicleDetailPage />
           </ProtectedRoute>
         }
@@ -81,7 +81,7 @@ export default function App() {
       <Route
         path="/dashboard/logs"
         element={
-          <ProtectedRoute allowedRoles={['cso','admin']}>
+          <ProtectedRoute allowedRoles={['security','cso','admin']}>
             <LogsPage />
           </ProtectedRoute>
         }
@@ -99,7 +99,7 @@ export default function App() {
       <Route
         path="/dashboard/admin/users/:id"
         element={
-          <ProtectedRoute allowedRoles={['admin']}>
+          <ProtectedRoute allowedRoles={['admin', 'cso']}>
             <UserDetailPage />
           </ProtectedRoute>
         }

@@ -74,7 +74,7 @@ export default function LogsPage() {
                         <th>Entry Time</th>
                         <th>Exit Time</th>
                         <th>Duration</th>
-                        <th>Scanned By</th>
+                        {user?.role !== 'security' && <th>Scanned By</th>}
                       </tr>
                     </thead>
                     <tbody>
@@ -92,17 +92,19 @@ export default function LogsPage() {
                           <td className="text-sm">{log.entryTime ? new Date(log.entryTime).toLocaleString() : '—'}</td>
                           <td className="text-sm">{log.exitTime ? new Date(log.exitTime).toLocaleString() : '—'}</td>
                           <td className="text-sm">{log.duration != null ? `${log.duration} mins` : '—'}</td>
-                          <td className="text-sm">
-                            {log.scannedBy ? (
-                              user?.role === 'admin' ? (
-                                <Link to={`/dashboard/admin/users/${log.scannedBy._id}`} className="text-primary hover:underline font-medium">
-                                  {log.scannedBy.email || `${log.scannedBy.first_name || ''} ${log.scannedBy.last_name || ''}`.trim()}
-                                </Link>
-                              ) : (
-                                log.scannedBy.email || `${log.scannedBy.first_name || ''} ${log.scannedBy.last_name || ''}`.trim()
-                              )
-                            ) : '—'}
-                          </td>
+                          {user?.role !== 'security' && (
+                            <td className="text-sm">
+                              {log.scannedBy ? (
+                                (user?.role === 'admin' || user?.role === 'cso') ? (
+                                  <Link to={`/dashboard/admin/users/${log.scannedBy._id}`} className="text-primary hover:underline font-medium">
+                                    {log.scannedBy.email || `${log.scannedBy.first_name || ''} ${log.scannedBy.last_name || ''}`.trim()}
+                                  </Link>
+                                ) : (
+                                  log.scannedBy.email || `${log.scannedBy.first_name || ''} ${log.scannedBy.last_name || ''}`.trim()
+                                )
+                              ) : '—'}
+                            </td>
+                          )}
                         </tr>
                       ))}
                     </tbody>
