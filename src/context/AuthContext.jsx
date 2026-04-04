@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { toast } from 'react-toastify';
 import api from '../services/api';
 
 const AuthContext = createContext(null);
@@ -43,8 +44,10 @@ export function AuthProvider({ children }) {
   const logout = useCallback(async () => {
     try {
       await api.post('/user/logout');
+      toast.success('Logged out successfully!');
     } catch {
       // still clear local state even if request fails
+      toast.info('Session ended automatically.');
     }
     setUser(null);
   }, []);

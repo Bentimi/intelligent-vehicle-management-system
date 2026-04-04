@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router'
 import { toast } from 'react-toastify'
 import { useState } from 'react'
 import api from '../../services/api'
-import { ShieldCheck, UserPlus } from 'lucide-react'
+import { ShieldCheck, UserPlus, Loader2 } from 'lucide-react'
 
 export default function SignupPage() {
   const navigate = useNavigate()
@@ -13,6 +13,7 @@ export default function SignupPage() {
     register,
     handleSubmit,
     watch,
+    setError,
     formState: { errors },
   } = useForm()
 
@@ -24,8 +25,17 @@ export default function SignupPage() {
       toast.success('Account created! Please sign in.')
       navigate('/login')
     } catch (err) {
-      const msg = err.response?.data?.message || 'Signup failed. Please try again.'
-      toast.error(msg)
+      if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
+        err.response.data.errors.forEach(e => {
+          if (e.param) setError(e.param, { type: 'server', message: e.msg || e.message })
+          else if (e.field) setError(e.field, { type: 'server', message: e.message || 'Invalid value' })
+          else if (e.path) setError(e.path, { type: 'server', message: e.msg || e.message })
+        })
+        toast.error('Please fix the errors in the form.')
+      } else {
+        const msg = err.response?.data?.message || 'Signup failed. Please try again.'
+        toast.error(msg)
+      }
     } finally {
       setLoading(false)
     }
@@ -101,7 +111,14 @@ export default function SignupPage() {
                 type="password"
                 className="form-input"
                 placeholder="Enter password"
-                {...register('password', { required: 'Password is required', minLength: { value: 8, message: 'Min 8 chars' } })}
+                {...register('password', { 
+                  required: 'Password is required', 
+                  minLength: { value: 8, message: 'Min 8 chars' },
+                  pattern: {
+                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).+$/,
+                    message: 'Requires uppercase, lowercase, number, and special character (!@#$%^&*)'
+                  }
+                })}
               />
               {errors.password && <span className="form-error">{errors.password.message}</span>}
             </div>
@@ -123,10 +140,11 @@ export default function SignupPage() {
           <button
             id="signup-btn"
             type="submit"
-            className={`btn btn-primary btn-full btn-lg flex items-center justify-center gap-2${loading ? ' btn-loading' : ''}`}
+            className="btn btn-primary btn-full btn-lg flex items-center justify-center gap-2"
             disabled={loading}
           >
-            {loading ? '' : <><UserPlus size={18} /> Create Account</>}
+            {loading ? <Loader2 size={18} className="animate-spin" /> : <UserPlus size={18} />}
+            {loading ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
 

@@ -3,9 +3,10 @@ import { useParams, useNavigate } from 'react-router'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
-import { ArrowLeft, Edit, Save, UserCircle, Loader2 } from 'lucide-react'
+import { ArrowLeft, Edit, Save, UserCircle, Loader2, Shield, X } from 'lucide-react'
 import api from '../../../services/api'
 import Layout from '../../../components/Layout'
+import { useAuth } from '../../../context/AuthContext'
 
 export default function UserDetailPage() {
   const { id } = useParams()
@@ -13,14 +14,19 @@ export default function UserDetailPage() {
   const qc = useQueryClient()
   const [editMode, setEditMode] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [roleMode, setRoleMode] = useState(false)
+  const [roleSaving, setRoleSaving] = useState(false)
+  const { user: currentUser } = useAuth()
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm()
+  const { register: registerRole, handleSubmit: handleRoleSubmit, reset: resetRole, formState: { errors: roleErrors } } = useForm()
 
   const { data: user, isLoading } = useQuery({
     queryKey: ['user', id],
     queryFn: () => api.get(`/user/${id}`).then((r) => {
       const u = r.data?.data
       reset(u)
+      resetRole({ role: u.role })
       return u
     }),
   })
@@ -37,6 +43,21 @@ export default function UserDetailPage() {
       toast.error(err.response?.data?.message || 'Update failed')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const onRoleUpdate = async (data) => {
+    setRoleSaving(true)
+    try {
+      await api.put(`/user/allocate-role/${id}`, data)
+      toast.success('Role updated successfully!')
+      setRoleMode(false)
+      qc.invalidateQueries({ queryKey: ['user', id] })
+      qc.invalidateQueries({ queryKey: ['users'] })
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Role update failed')
+    } finally {
+      setRoleSaving(false)
     }
   }
 
@@ -88,11 +109,18 @@ export default function UserDetailPage() {
               </span>
             </div>
           </div>
-          {!editMode && (
-            <button id="edit-user-btn" className="btn btn-secondary flex items-center gap-2" onClick={() => setEditMode(true)}>
-              <Edit size={16} /> Edit
-            </button>
-          )}
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            {currentUser?._id !== user._id && !editMode && (
+              <button id="allocate-role-btn" className="btn btn-secondary flex items-center gap-2" onClick={() => setRoleMode(true)}>
+                <Shield size={16} /> Assign Role
+              </button>
+            )}
+            {!editMode && (
+              <button id="edit-user-btn" className="btn btn-secondary flex items-center gap-2" onClick={() => setEditMode(true)}>
+                <Edit size={16} /> Edit
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="card">
@@ -176,6 +204,37 @@ export default function UserDetailPage() {
             </>
           )}
         </div>
+
+        {/* Allocate Role Modal */}
+        {roleMode && (
+          <div className="modal-overlay" onClick={() => setRoleMode(false)}>
+            <div className="modal" onClick={(e) => e.stopPropagation()}>
+              <button className="modal-close" onClick={() => setRoleMode(false)}><X size={16} /></button>
+              <div className="modal-title flex items-center gap-2"><Shield size={20} /> Allocate Role</div>
+              <form onSubmit={handleRoleSubmit(onRoleUpdate)}>
+                <div className="form-group">
+                  <label className="form-label">Select System Role</label>
+                  <select className="form-select" {...registerRole('role', { required: 'Role is required' })}>
+                    <option value="">select role</option>
+                    <option value="user">User</option>
+                    <option value="staff">Staff</option>
+                    <option value="security">Security</option>
+                    <option value="cso">CSO</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                  {roleErrors.role && <span className="form-error">{roleErrors.role.message}</span>}
+                </div>
+                <div style={{ display:'flex', gap:'1rem', marginTop:'1.5rem' }}>
+                  <button type="button" className="btn btn-secondary flex-1" onClick={() => setRoleMode(false)}>Cancel</button>
+                  <button type="submit" className={`btn btn-primary flex-1 flex items-center justify-center gap-2${roleSaving ? ' btn-loading' : ''}`} disabled={roleSaving}>
+                    {roleSaving ? <Loader2 size={16} className="animate-spin" /> : <Shield size={16} />}
+                    {roleSaving ? 'Saving...' : 'Confirm Allocation'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
   )

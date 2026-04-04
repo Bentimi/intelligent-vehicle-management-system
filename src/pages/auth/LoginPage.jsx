@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form'
 import { useNavigate, Link } from 'react-router'
 import { toast } from 'react-toastify'
 import { useAuth } from '../../context/AuthContext'
-import { ShieldCheck, ArrowRight } from 'lucide-react'
+import { ShieldCheck, ArrowRight, Loader2 } from 'lucide-react'
 
 const roleHome = {
   user:     '/dashboard/profile',
@@ -73,7 +73,7 @@ export default function LoginPage() {
               type="password"
               className="form-input"
               placeholder="Enter password"
-              {...register('password', { required: 'Password is required', minLength: { value: 6, message: 'Min 6 characters' } })}
+              {...register('password', { required: 'Password is required' })}
             />
             {errors.password && <span className="form-error">{errors.password.message}</span>}
           </div>
@@ -81,10 +81,11 @@ export default function LoginPage() {
           <button
             id="login-btn"
             type="submit"
-            className={`btn btn-primary btn-full btn-lg flex items-center justify-center gap-2${isLoading ? ' btn-loading' : ''}`}
+            className="btn btn-primary btn-full btn-lg flex items-center justify-center gap-2"
             disabled={isLoading}
           >
-            {isLoading ? '' : <> Sign In<ArrowRight size={18} /> </>}
+            {isLoading ? <Loader2 size={18} className="animate-spin" /> : <ArrowRight size={18} />}
+            {isLoading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
 

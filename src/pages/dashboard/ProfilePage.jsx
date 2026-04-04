@@ -15,11 +15,14 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [editMode, setEditMode] = useState(false)
+  const [pwdMode, setPwdMode] = useState(false)
+  const [pwdSaving, setPwdSaving] = useState(false)
 
   const [vPage, setVPage] = useState(1)
   const [vPageSize, setVPageSize] = useState(10)
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm()
+  const { register: registerPwd, handleSubmit: handlePwdSubmit, reset: resetPwd, watch: watchPwd, formState: { errors: pwdErrors } } = useForm()
 
   useEffect(() => {
     if (!user?._id) return
@@ -55,6 +58,20 @@ export default function ProfilePage() {
       toast.error(err.response?.data?.message || 'Update failed')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const onPwdSubmit = async (data) => {
+    setPwdSaving(true)
+    try {
+      await api.put(`/user/change-password/${user._id}`, data)
+      toast.success('Password updated successfully!')
+      setPwdMode(false)
+      resetPwd()
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update password')
+    } finally {
+      setPwdSaving(false)
     }
   }
 
@@ -122,9 +139,12 @@ export default function ProfilePage() {
                 </div>
               </div>
               
-              <div style={{ marginTop:'2rem', borderTop:'1px solid var(--border)', paddingTop:'1.5rem', display:'flex', gap:'1rem' }}>
+              <div style={{ marginTop:'2rem', borderTop:'1px solid var(--border)', paddingTop:'1.5rem', display:'flex', gap:'0.75rem', flexWrap:'wrap' }}>
                 <button className="btn btn-secondary flex-1 flex items-center justify-center gap-2" onClick={() => setEditMode(true)}>
                   <Settings size={16} /> Edit Profile
+                </button>
+                <button className="btn btn-secondary flex-1 flex items-center justify-center gap-2" onClick={() => setPwdMode(true)}>
+                  <Shield size={16} /> Password
                 </button>
                 <button className="btn btn-danger flex-1 flex items-center justify-center gap-2" onClick={handleLogout}>
                   <LogOut size={16} /> Logout
@@ -236,9 +256,53 @@ export default function ProfilePage() {
                   </div>
                   <div style={{ display:'flex', gap:'1rem', marginTop:'1.5rem' }}>
                     <button type="button" className="btn btn-secondary flex-1" onClick={() => { setEditMode(false); reset(profile); }}>Cancel</button>
-                    <button type="submit" className={`btn btn-primary flex-1 flex items-center justify-center gap-2${saving ? ' btn-loading' : ''}`} disabled={saving}>
+                    <button type="submit" className="btn btn-primary flex-1 flex items-center justify-center gap-2" disabled={saving}>
                       {saving ? <Loader2 size={16} className="animate-spin" /> : <UserIcon size={16} />}
                       {saving ? 'Saving...' : 'Save Changes'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* Change Password Modal */}
+          {pwdMode && (
+            <div className="modal-overlay" onClick={() => { setPwdMode(false); resetPwd(); }}>
+              <div className="modal" onClick={(e) => e.stopPropagation()}>
+                <button className="modal-close" onClick={() => { setPwdMode(false); resetPwd(); }}><X size={16} /></button>
+                <div className="modal-title flex items-center gap-2"><Shield size={20} /> Change Password</div>
+                <form onSubmit={handlePwdSubmit(onPwdSubmit)}>
+                  <div className="form-group">
+                    <label className="form-label">Current Password</label>
+                    <input type="password" className="form-input" placeholder='Enter current password' {...registerPwd('oldPassword', { required: 'Required' })} />
+                    {pwdErrors.oldPassword && <span className="form-error">{pwdErrors.oldPassword.message}</span>}
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">New Password</label>
+                    <input type="password" className="form-input" placeholder='Enter new password' {...registerPwd('newPassword', { 
+                      required: 'Required', 
+                      minLength: { value: 8, message: 'Min 8 chars' },
+                      pattern: {
+                        value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).+$/,
+                        message: 'Requires uppercase, lowercase, number, and special character (!@#$%^&*)'
+                      }
+                    })} />
+                    {pwdErrors.newPassword && <span className="form-error">{pwdErrors.newPassword.message}</span>}
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Confirm New Password</label>
+                    <input type="password" className="form-input" placeholder='Confirm new password' {...registerPwd('confirmPassword', { 
+                      required: 'Required',
+                      validate: (value) => value === watchPwd('newPassword') || 'Passwords do not match'
+                    })} />
+                    {pwdErrors.confirmPassword && <span className="form-error">{pwdErrors.confirmPassword.message}</span>}
+                  </div>
+                  <div style={{ display:'flex', gap:'1rem', marginTop:'1.5rem' }}>
+                    <button type="button" className="btn btn-secondary flex-1" onClick={() => { setPwdMode(false); resetPwd(); }}>Cancel</button>
+                    <button type="submit" className="btn btn-primary flex-1 flex items-center justify-center gap-2" disabled={pwdSaving}>
+                      {pwdSaving ? <Loader2 size={16} className="animate-spin" /> : <Shield size={16} />}
+                      {pwdSaving ? 'Updating...' : 'Update Password'}
                     </button>
                   </div>
                 </form>

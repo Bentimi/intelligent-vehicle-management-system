@@ -337,14 +337,7 @@ a:hover { color: var(--primary); }
 .btn-lg { padding: 0.875rem 1.75rem; font-size: 1rem; }
 .btn-full { width: 100%; }
 
-.btn-loading::after {
-  content: '';
-  width: 14px; height: 14px;
-  border: 2px solid transparent;
-  border-top-color: currentColor;
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-}
+
 
 /* ===== FORM ELEMENTS ===== */
 .form-group {
@@ -1218,5 +1211,22 @@ tbody tr:last-child td { border-bottom: none; }
   }
   html {
     @apply font-sans;
+  }
+}
+
+/* ===== DEVICE SAFE AREA ALIGNMENT ===== */
+.Toastify__toast-container {
+  padding-top: env(safe-area-inset-top) !important;
+  padding-right: env(safe-area-inset-right) !important;
+  padding-left: env(safe-area-inset-left) !important;
+  padding-bottom: env(safe-area-inset-bottom) !important;
+}
+
+@supports (padding-top: env(safe-area-inset-top)) {
+  .app-shell, .auth-page {
+    padding-top: max(1rem, env(safe-area-inset-top));
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
 }
