@@ -3,24 +3,14 @@ import { toast } from 'react-toastify';
 import api from '../services/api';
 
 const AuthContext = createContext(null);
-const SESSION_KEY = 'has_session';
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Restore session on mount.
-  // Guard: skip all network calls if localStorage says there's no session —
-  // this prevents noisy 401s on unauthenticated page loads.
-  // 1. Try /user/me with the current access token.
-  // 2. If 401, silently POST /user/refresh then retry /user/me.
-  // 3. If refresh also fails, clear session flag and stay logged out.
   useEffect(() => {
     const restoreSession = async () => {
-      if (!localStorage.getItem(SESSION_KEY)) {
-        setIsLoading(false);
-        return;
-      }
       try {
         const res = await api.get('/user/me');
         setUser(res.data?.data?.user);
@@ -31,7 +21,6 @@ export function AuthProvider({ children }) {
             const retry = await api.get('/user/me');
             setUser(retry.data?.data?.user);
           } catch {
-            localStorage.removeItem(SESSION_KEY);
             setUser(null);
           }
         } else {
@@ -45,10 +34,9 @@ export function AuthProvider({ children }) {
     restoreSession();
   }, []);
 
-  // Handle mid-flight session expiration (e.g. token expired during app use)
+  // Handle mid-flight session expiration
   useEffect(() => {
     const handleExpired = () => {
-      localStorage.removeItem(SESSION_KEY);
       setUser(null);
     };
     window.addEventListener('session_expired', handleExpired);
@@ -60,7 +48,6 @@ export function AuthProvider({ children }) {
     try {
       const res = await api.post('/user/login', credentials);
       const userData = res.data?.data?.user;
-      localStorage.setItem(SESSION_KEY, '1');
       setUser(userData);
       return userData;
     } finally {
@@ -75,7 +62,6 @@ export function AuthProvider({ children }) {
     } catch {
       toast.info('Session ended automatically.');
     }
-    localStorage.removeItem(SESSION_KEY);
     setUser(null);
   }, []);
 
