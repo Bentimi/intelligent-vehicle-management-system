@@ -11,7 +11,7 @@ api.interceptors.response.use(
   (res) => res,
   (error) => {
     const url = error.config?.url ?? '';
-    const isAuthRoute = url.includes('/user/login') || url.includes('/user/me');
+    const isAuthRoute = url.includes('/user/login') || url.includes('/user/me') || url.includes('/user/refresh');
 
     if (error.response?.status === 401 && !isAuthRoute) {
       window.dispatchEvent(new Event('session_expired'));
