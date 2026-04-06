@@ -6,53 +6,15 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// Flag to prevent infinite refresh loops
-let isRefreshing = false;
-let failedQueue = [];
-
-function processQueue(error) {
-  failedQueue.forEach((prom) => {
-    if (error) prom.reject(error);
-    else prom.resolve();
-  });
-  failedQueue = [];
-}
-
-// Response interceptor: auto-refresh on 401
+// Response interceptor: on 401, signal session expiry so AuthContext clears user
 api.interceptors.response.use(
-  (res) => {
-    return res;
-  },
-  async (error) => {
-    const original = error.config;
+  (res) => res,
+  (error) => {
+    const url = error.config?.url ?? '';
+    const isAuthRoute = url.includes('/user/login') || url.includes('/user/me');
 
-    if (
-      error.response?.status === 401 &&
-      !original._retry &&
-      !original.url?.includes('/user/refresh') &&
-      !original.url?.includes('/user/login')
-    ) {
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        }).then(() => api(original));
-      }
-
-      original._retry = true;
-      isRefreshing = true;
-
-      try {
-        await api.post('/user/refresh');
-        processQueue(null);
-        return api(original);
-      } catch (refreshError) {
-        processQueue(refreshError);
-        // Fully dead session (refresh token expired) -> let AuthContext handle state clearing
-        window.dispatchEvent(new Event('session_expired'));
-        return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
-      }
+    if (error.response?.status === 401 && !isAuthRoute) {
+      window.dispatchEvent(new Event('session_expired'));
     }
 
     return Promise.reject(error);

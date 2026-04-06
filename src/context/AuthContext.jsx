@@ -8,14 +8,29 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Validate session on mount via secure cookie (HttpOnly)
+  // Helper: read a plain (non-HttpOnly) cookie by name
+  const getCookie = (name) => {
+    const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+    return match ? decodeURIComponent(match[1]) : null;
+  };
+
+  // Restore session on mount — but ONLY if the backend already set the
+  // readable `logged_in` flag cookie. If it's absent there is no session,
+  // so we skip the call entirely and avoid a noisy 401 in the console.
   useEffect(() => {
+    if (!getCookie('logged_in')) {
+      setIsLoading(false);
+      return;
+    }
+
     api.get('/user/me')
       .then((res) => {
         setUser(res.data?.data?.user);
       })
       .catch(() => {
-        setUser(null);
+        // /user/me failed despite the flag cookie existing (e.g. token expired).
+        // Only clear user if login() hasn't already set one.
+        setUser((prev) => (prev === null ? null : prev));
       })
       .finally(() => {
         setIsLoading(false);
