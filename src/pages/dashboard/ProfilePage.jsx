@@ -246,7 +246,7 @@ export default function ProfilePage() {
                   </div>
                   <div className="form-group">
                     <label className="form-label">Registration Number</label>
-                    <input className="form-input" placeholder='Enter registration number' {...register('reg_number', { required: 'Registration number is required' })} />
+                    <input disabled className="form-input" placeholder='Enter registration number' {...register('reg_number', { required: 'Registration number is required' })} />
                     {errors.reg_number && <span className="form-error">{errors.reg_number.message}</span>}
                   </div>
                   <div className="form-group">
