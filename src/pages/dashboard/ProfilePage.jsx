@@ -244,11 +244,11 @@ export default function ProfilePage() {
                     <input className="form-input" placeholder='Enter email address' type="email" {...register('email', { required: 'Email is required' })} />
                     {errors.email && <span className="form-error">{errors.email.message}</span>}
                   </div>
-                  <div className="form-group">
+                  {/* <div className="form-group">
                     <label className="form-label">Registration Number</label>
                     <input disabled className="form-input" placeholder='Enter registration number' {...register('reg_number', { required: 'Registration number is required' })} />
                     {errors.reg_number && <span className="form-error">{errors.reg_number.message}</span>}
-                  </div>
+                  </div> */}
                   <div className="form-group">
                     <label className="form-label">Phone Number</label>
                     <input className="form-input" placeholder='Enter phone number' {...register('phone_number', { required: 'Phone number is required' })} />
